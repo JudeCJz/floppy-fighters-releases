@@ -159,13 +159,88 @@
     });
   }
 
-  function shake() {
+  function shake(fx, fy) {
+    var hasForce = typeof fx === "number" && typeof fy === "number";
     bodies.forEach(function (b) {
       wake(b);
-      M.Body.setVelocity(b, { x: (Math.random() - 0.5) * 14, y: -8 - Math.random() * 10 });
-      M.Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.5);
+      var vx = hasForce ? fx + (Math.random() - 0.5) * 8 : (Math.random() - 0.5) * 14;
+      var vy = hasForce ? fy - Math.random() * 8 : -8 - Math.random() * 10;
+      vx = Math.max(-20, Math.min(20, vx));
+      vy = Math.max(-22, Math.min(8, vy));
+      M.Body.setVelocity(b, { x: vx, y: vy });
+      M.Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.6);
     });
+    box.classList.remove("box-shake");
+    void box.offsetWidth;
+    box.classList.add("box-shake");
+    if (navigator.vibrate) {
+      try { navigator.vibrate(28); } catch (err) {}
+    }
   }
+
+  // ---------- phone shake detection (Android & mobile) ----------
+  var lastShake = 0;
+  var lastGx = 0, lastGy = 0, lastGz = 0;
+  var hasLastG = false;
+
+  function onMotion(e) {
+    if (!running || openBody) return;
+    var now = performance.now();
+    var ax = 0, ay = 0, az = 0, mag = 0;
+    var acc = e.acceleration;
+    var g = e.accelerationIncludingGravity;
+
+    if (acc && (acc.x !== null || acc.y !== null || acc.z !== null)) {
+      ax = acc.x || 0;
+      ay = acc.y || 0;
+      az = acc.z || 0;
+      mag = Math.hypot(ax, ay, az);
+    } else if (g && (g.x !== null || g.y !== null || g.z !== null)) {
+      var gx = g.x || 0, gy = g.y || 0, gz = g.z || 0;
+      if (hasLastG) {
+        ax = gx - lastGx;
+        ay = gy - lastGy;
+        az = gz - lastGz;
+        mag = Math.hypot(ax, ay, az);
+      }
+      lastGx = gx;
+      lastGy = gy;
+      lastGz = gz;
+      hasLastG = true;
+    }
+
+    if (mag > 13 && now - lastShake > 260) {
+      lastShake = now;
+      var forceX = Math.max(-18, Math.min(18, -ax * 0.85));
+      var forceY = -8 - Math.min(14, mag * 0.45);
+      shake(forceX, forceY);
+
+      var hint = document.getElementById("box-hint");
+      if (hint) hint.style.opacity = 0;
+    }
+  }
+
+  function initMotion() {
+    var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ("ontouchstart" in window);
+    if (isMobile) {
+      var hintEl = document.getElementById("box-hint");
+      if (hintEl) hintEl.textContent = "Tap a weapon \u00B7 Shake to toss";
+    }
+
+    if (typeof DeviceMotionEvent === "undefined") return;
+    if (typeof DeviceMotionEvent.requestPermission === "function") {
+      var reqOnTouch = function () {
+        DeviceMotionEvent.requestPermission().then(function (state) {
+          if (state === "granted") window.addEventListener("devicemotion", onMotion, { passive: true });
+        }).catch(function () {});
+        window.removeEventListener("pointerdown", reqOnTouch);
+      };
+      window.addEventListener("pointerdown", reqOnTouch, { once: true });
+    } else {
+      window.addEventListener("devicemotion", onMotion, { passive: true });
+    }
+  }
+  initMotion();
 
   canvas.addEventListener("pointerdown", function (e) {
     var p = pointIn(e);
@@ -202,7 +277,7 @@
   canvas.addEventListener("pointercancel", function (e) { endPointer(e, true); });
   canvas.addEventListener("pointerleave", function () { if (!drag) { hover = null; } });
 
-  document.getElementById("shake").addEventListener("click", shake);
+  document.getElementById("shake").addEventListener("click", function () { shake(); });
   document.getElementById("redrop").addEventListener("click", function () { drop(true); });
 
   // ---------- inspect (weapon flies out of the pile and grows) ----------

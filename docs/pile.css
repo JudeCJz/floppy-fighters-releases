@@ -105,6 +105,17 @@
     linear-gradient(#141418, #0b0b0e);
   box-shadow: inset 0 -18px 40px rgba(0, 0, 0, .55), 0 18px 40px rgba(0, 0, 0, .45);
 }
+.box.box-shake {
+  animation: box-jolt .32s ease-out;
+}
+@keyframes box-jolt {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-3px, 2px) rotate(-0.4deg); }
+  40% { transform: translate(3px, -2px) rotate(0.4deg); }
+  60% { transform: translate(-2px, 1px) rotate(-0.2deg); }
+  80% { transform: translate(1px, -1px) rotate(0.1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
 .box::before, .box::after { /* rim posts */
   content: ""; position: absolute; top: 0; width: 10px; height: 26px; background: var(--red);
 }
