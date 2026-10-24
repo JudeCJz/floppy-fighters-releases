@@ -111,12 +111,6 @@
       track.style.transform = "none";
       track.innerHTML = "";
     }
-    var revealImg = document.getElementById("mb-reveal-img");
-    var revealName = document.getElementById("mb-reveal-name");
-    var revealDesc = document.getElementById("mb-reveal-desc");
-    if (revealImg) revealImg.src = "";
-    if (revealName) revealName.textContent = "";
-    if (revealDesc) revealDesc.textContent = "";
     rolling = false;
   }
 
@@ -241,9 +235,6 @@
       block.title = winnerItem.name;
       block.setAttribute("aria-label", winnerItem.name + " - tap to roll again");
 
-      var revealImg = document.getElementById("mb-reveal-img");
-      var revealName = document.getElementById("mb-reveal-name");
-      var revealDesc = document.getElementById("mb-reveal-desc");
       if (revealImg) {
         revealImg.src = "assets/" + winnerItem.img + ".png";
         revealImg.alt = winnerItem.name;
@@ -256,12 +247,6 @@
         nameEl.classList.add("win");
         nameEl.textContent = "";
       }
-      if (revealImg) {
-        revealImg.src = "assets/" + winnerItem.img + ".png";
-        revealImg.alt = winnerItem.name;
-      }
-      if (revealName) revealName.textContent = winnerItem.name;
-      if (revealDesc) revealDesc.textContent = winnerItem.info;
       if (navigator.vibrate) {
         try { navigator.vibrate([30, 40, 50]); } catch (e) {}
       }
