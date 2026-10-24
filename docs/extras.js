@@ -32,7 +32,7 @@
 
   var block = document.getElementById("mystery");
   var reel = document.getElementById("mb-reel");
-  var result = document.getElementById("mb-result");
+  var nameEl = document.getElementById("mb-name") || document.getElementById("mb-result");
   var rolling = false;
 
   function pick() {
@@ -47,18 +47,23 @@
     rolling = true;
     block.classList.remove("popped");
     block.classList.add("rolling");
-    if (result) {
-      result.classList.remove("win");
-      result.innerHTML = '<p class="tag">ROLLING...</p><h3>&nbsp;</h3><p class="muted">&nbsp;</p>';
+    if (nameEl) {
+      nameEl.classList.remove("win");
+      nameEl.classList.add("rolling");
+      nameEl.textContent = "...";
     }
     var win = pick();
-    var delays = [55, 55, 60, 65, 75, 85, 100, 120, 145, 175, 215, 265];
-    // cycle through the items so the last frame lands on the winner
+    // Dramatic, suspenseful deceleration (3.6s total):
+    // starts fast, visibly brakes, then clicks through the final items one-by-one
+    var delays = [55, 55, 60, 65, 70, 80, 95, 115, 140, 175, 220, 280, 360, 470, 620, 800];
     var L = ITEMS.length;
     var frames = delays.map(function (_, n) { return (((win - (delays.length - 1 - n)) % L) + L) % L; });
     var n = 0;
     (function next() {
       showFrame(frames[n]);
+      if (n >= delays.length - 5 && navigator.vibrate) {
+        try { navigator.vibrate(10); } catch (err) {}
+      }
       if (n < delays.length - 1) { setTimeout(next, delays[n++]); return; }
       setTimeout(function () {
         var it = ITEMS[win];
@@ -66,9 +71,13 @@
         block.classList.add("popped");
         block.title = it.name;
         block.setAttribute("aria-label", it.name + " - tap to roll again");
-        if (result) {
-          result.classList.add("win");
-          result.innerHTML = '<p class="tag">YOU GOT</p><h3>' + it.name + '</h3>';
+        if (nameEl) {
+          nameEl.classList.remove("rolling");
+          nameEl.classList.add("win");
+          nameEl.textContent = it.name;
+        }
+        if (navigator.vibrate) {
+          try { navigator.vibrate([25, 35, 45]); } catch (err) {}
         }
         rolling = false;
       }, delays[n]);

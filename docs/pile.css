@@ -21,13 +21,39 @@
 .sect-head { margin-bottom: 20px; }
 
 /* ---------- mystery block ---------- */
+.mystery {
+  text-align: center;
+}
+.mystery .sect-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.mystery .sect-head h2::before {
+  display: none;
+}
+.mystery .sect-head p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 15px;
+}
 .mystery-wrap {
-  display: flex; justify-content: center; align-items: center;
-  padding: 24px 0 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px 0 28px;
 }
 .mystery-block {
   position: relative; width: clamp(140px, 20vw, 200px); aspect-ratio: 1; padding: 0; border: 0; background: none; cursor: pointer;
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .55)); -webkit-tap-highlight-color: transparent;
+  margin: 0 auto;
 }
 .mystery-block .mb-block { width: 100%; height: 100%; object-fit: contain; transition: transform .15s; }
 .mystery-block:hover .mb-block { transform: translateY(-4px) rotate(-3deg); }
@@ -39,6 +65,34 @@
 .mb-reel img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transform: scale(.4) translateY(30px); transition: opacity .2s, transform .35s cubic-bezier(.2, 1.4, .4, 1); }
 .mystery-block.popped .mb-reel img { opacity: 1; transform: none; }
 .mystery-block.rolling .mb-reel img { opacity: .95; transform: translateY(-58%) scale(.55); transition: none; }
+.mystery-name {
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #fff;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  transition: opacity .2s, transform .2s;
+}
+.mystery-name.rolling {
+  color: var(--muted);
+  font-size: 15px;
+  letter-spacing: .12em;
+  font-weight: 700;
+}
+.mystery-name.win {
+  color: var(--red-hi);
+  animation: pop-in .38s cubic-bezier(.2, 1.4, .4, 1) both;
+  text-shadow: 0 4px 18px rgba(240, 72, 77, .4);
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 /* ---------- map slider ---------- */
 .slider { position: relative; }
