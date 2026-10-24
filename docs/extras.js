@@ -47,8 +47,10 @@
     rolling = true;
     block.classList.remove("popped");
     block.classList.add("rolling");
-    result.classList.remove("win");
-    result.innerHTML = '<p class="tag">ROLLING...</p><h3>&nbsp;</h3><p class="muted">&nbsp;</p>';
+    if (result) {
+      result.classList.remove("win");
+      result.innerHTML = '<p class="tag">ROLLING...</p><h3>&nbsp;</h3><p class="muted">&nbsp;</p>';
+    }
     var win = pick();
     var delays = [55, 55, 60, 65, 75, 85, 100, 120, 145, 175, 215, 265];
     // cycle through the items so the last frame lands on the winner
@@ -62,73 +64,182 @@
         var it = ITEMS[win];
         block.classList.remove("rolling");
         block.classList.add("popped");
-        result.classList.add("win");
-        result.innerHTML = '<p class="tag">YOU GOT</p>' +
-          "<h3>" + it.name + '</h3><p class="muted">' + it.info + '</p><p class="muted" style="margin-top:10px;font-size:13px">Tap the block to roll again.</p>';
+        block.title = it.name;
+        block.setAttribute("aria-label", it.name + " - tap to roll again");
+        if (result) {
+          result.classList.add("win");
+          result.innerHTML = '<p class="tag">YOU GOT</p><h3>' + it.name + '</h3>';
+        }
         rolling = false;
       }, delays[n]);
     })();
   });
 
-  // ---------- map slider ----------
+  // ---------- map slider (infinite loop) ----------
   var slides = document.getElementById("slides");
-  var items = Array.prototype.slice.call(slides.children);
+  var origItems = Array.prototype.slice.call(slides.children);
+  var N = origItems.length;
   var dots = document.getElementById("dots");
   var prev = document.querySelector(".slide-arrow.prev");
   var nextBtn = document.querySelector(".slide-arrow.next");
 
-  items.forEach(function (s, i) {
-    var d = document.createElement("button");
-    d.setAttribute("aria-label", "Map " + (i + 1));
-    d.addEventListener("click", function () { go(i); });
-    dots.appendChild(d);
-  });
-  function centerOf(s) { return s.offsetLeft - (slides.clientWidth - s.clientWidth) / 2; }
-  function go(i) {
-    i = Math.max(0, Math.min(items.length - 1, i));
-    slides.scrollTo({ left: centerOf(items[i]), behavior: "smooth" });
-  }
-  function current() {
-    var mid = slides.scrollLeft + slides.clientWidth / 2, best = 0, bestD = Infinity;
-    items.forEach(function (s, i) {
-      var d = Math.abs(s.offsetLeft + s.clientWidth / 2 - mid);
-      if (d < bestD) { bestD = d; best = i; }
+  if (N > 0) {
+    origItems.forEach(function (s, i) {
+      var d = document.createElement("button");
+      d.setAttribute("aria-label", "Map " + (i + 1));
+      d.addEventListener("click", function () { goToReal(i); });
+      dots.appendChild(d);
     });
-    return best;
-  }
-  var ticking = false;
-  function update() {
-    ticking = false;
-    var c = current();
-    Array.prototype.forEach.call(dots.children, function (d, i) { d.classList.toggle("on", i === c); });
-    items.forEach(function (s, i) { s.style.opacity = i === c ? 1 : 0.55; });
-    prev.style.visibility = c === 0 ? "hidden" : "";
-    nextBtn.style.visibility = c === items.length - 1 ? "hidden" : "";
-  }
-  slides.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-  prev.addEventListener("click", function () { go(current() - 1); });
-  nextBtn.addEventListener("click", function () { go(current() + 1); });
-  window.addEventListener("resize", update);
-  update();
 
-  // mouse drag to swipe on desktop (touch already swipes natively)
-  var drag = null;
-  slides.addEventListener("pointerdown", function (e) {
-    if (e.pointerType !== "mouse") return;
-    drag = { x: e.clientX, left: slides.scrollLeft, moved: false };
-    slides.style.scrollSnapType = "none"; slides.style.scrollBehavior = "auto";
-  });
-  window.addEventListener("pointermove", function (e) {
-    if (!drag) return;
-    var dx = e.clientX - drag.x;
-    if (Math.abs(dx) > 4) drag.moved = true;
-    slides.scrollLeft = drag.left - dx;
-  });
-  window.addEventListener("pointerup", function () {
-    if (!drag) return;
-    slides.style.scrollSnapType = ""; slides.style.scrollBehavior = "";
-    drag = null;
-    go(current());
-  });
-  slides.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    var CLONES = 2;
+    // Clone last CLONES to the front: [N-2, N-1]
+    for (var i = N - 1; i >= N - CLONES; i--) {
+      var cl = origItems[i].cloneNode(true);
+      cl.classList.add("clone");
+      cl.setAttribute("aria-hidden", "true");
+      slides.insertBefore(cl, slides.firstChild);
+    }
+    // Clone first CLONES to the back: [0, 1]
+    for (var j = 0; j < CLONES; j++) {
+      var cr = origItems[j].cloneNode(true);
+      cr.classList.add("clone");
+      cr.setAttribute("aria-hidden", "true");
+      slides.appendChild(cr);
+    }
+
+    var allSlides = Array.prototype.slice.call(slides.children);
+
+    function centerOf(elem) {
+      return elem.offsetLeft - (slides.clientWidth - elem.clientWidth) / 2;
+    }
+
+    function currentElementIndex() {
+      var mid = slides.scrollLeft + slides.clientWidth / 2;
+      var best = CLONES, bestD = Infinity;
+      allSlides.forEach(function (s, idx) {
+        var d = Math.abs(s.offsetLeft + s.clientWidth / 2 - mid);
+        if (d < bestD) { bestD = d; best = idx; }
+      });
+      return best;
+    }
+
+    function realIndex(elemIndex) {
+      return ((elemIndex - CLONES) % N + N) % N;
+    }
+
+    function instantJump(elemIndex) {
+      var snap = slides.style.scrollSnapType;
+      slides.style.scrollSnapType = "none";
+      slides.style.scrollBehavior = "auto";
+      slides.scrollLeft = centerOf(allSlides[elemIndex]);
+      slides.style.scrollSnapType = snap;
+      slides.style.scrollBehavior = "";
+    }
+
+    var isNavigating = false;
+    var wrapTimer = null;
+
+    function checkWrap() {
+      if (drag || isNavigating) return;
+      var c = currentElementIndex();
+      if (c >= N + CLONES) {
+        instantJump(c - N);
+        update();
+      } else if (c < CLONES) {
+        instantJump(c + N);
+        update();
+      }
+    }
+
+    function goToElement(elemIndex) {
+      elemIndex = Math.max(0, Math.min(allSlides.length - 1, elemIndex));
+      isNavigating = true;
+      slides.scrollTo({ left: centerOf(allSlides[elemIndex]), behavior: "smooth" });
+      clearTimeout(wrapTimer);
+      wrapTimer = setTimeout(function () {
+        isNavigating = false;
+        checkWrap();
+      }, 420);
+    }
+
+    function goToReal(i) {
+      goToElement(CLONES + i);
+    }
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var c = currentElementIndex();
+      var r = realIndex(c);
+      Array.prototype.forEach.call(dots.children, function (d, idx) {
+        d.classList.toggle("on", idx === r);
+      });
+      allSlides.forEach(function (s, idx) {
+        s.style.opacity = realIndex(idx) === r ? 1 : 0.55;
+      });
+      prev.style.visibility = "";
+      nextBtn.style.visibility = "";
+    }
+
+    var scrollDebounce = null;
+    slides.addEventListener("scroll", function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      if (!isNavigating && !drag) {
+        clearTimeout(scrollDebounce);
+        scrollDebounce = setTimeout(checkWrap, 120);
+      }
+    }, { passive: true });
+
+    if ("onscrollend" in window) {
+      slides.addEventListener("scrollend", function () {
+        if (!isNavigating && !drag) checkWrap();
+      });
+    }
+
+    prev.addEventListener("click", function () {
+      var c = currentElementIndex();
+      goToElement(c - 1);
+    });
+    nextBtn.addEventListener("click", function () {
+      var c = currentElementIndex();
+      goToElement(c + 1);
+    });
+
+    // Initial positioning at the first real card
+    function initPosition() {
+      instantJump(CLONES);
+      update();
+    }
+    initPosition();
+    window.addEventListener("load", initPosition);
+    window.addEventListener("resize", function () {
+      var r = realIndex(currentElementIndex());
+      instantJump(CLONES + r);
+      update();
+    });
+
+    // mouse drag to swipe on desktop (touch already swipes natively)
+    var drag = null;
+    slides.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse") return;
+      drag = { x: e.clientX, left: slides.scrollLeft, moved: false };
+      slides.style.scrollSnapType = "none";
+      slides.style.scrollBehavior = "auto";
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 4) drag.moved = true;
+      slides.scrollLeft = drag.left - dx;
+    });
+    window.addEventListener("pointerup", function () {
+      if (!drag) return;
+      slides.style.scrollSnapType = "";
+      slides.style.scrollBehavior = "";
+      drag = null;
+      var c = currentElementIndex();
+      goToElement(c);
+    });
+    slides.addEventListener("dragstart", function (e) { e.preventDefault(); });
+  }
 })();

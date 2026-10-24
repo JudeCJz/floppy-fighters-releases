@@ -180,39 +180,51 @@
 
   // ---------- phone shake detection (Android & mobile) ----------
   var lastShake = 0;
-  var lastGx = 0, lastGy = 0, lastGz = 0;
-  var hasLastG = false;
+  var lastGx = null, lastGy = null, lastGz = null;
 
   function onMotion(e) {
-    if (!running || openBody) return;
+    if (openBody) return; // don't shake while inspecting a weapon
+    var r = box.getBoundingClientRect();
+    if (r.bottom <= 0 || r.top >= window.innerHeight) return;
+
     var now = performance.now();
     var ax = 0, ay = 0, az = 0, mag = 0;
-    var acc = e.acceleration;
     var g = e.accelerationIncludingGravity;
+    var acc = e.acceleration;
 
-    if (acc && (acc.x !== null || acc.y !== null || acc.z !== null)) {
-      ax = acc.x || 0;
-      ay = acc.y || 0;
-      az = acc.z || 0;
-      mag = Math.hypot(ax, ay, az);
-    } else if (g && (g.x !== null || g.y !== null || g.z !== null)) {
+    if (g && (g.x !== null || g.y !== null || g.z !== null)) {
       var gx = g.x || 0, gy = g.y || 0, gz = g.z || 0;
-      if (hasLastG) {
-        ax = gx - lastGx;
-        ay = gy - lastGy;
-        az = gz - lastGz;
-        mag = Math.hypot(ax, ay, az);
+      if (lastGx !== null) {
+        var dx = gx - lastGx;
+        var dy = gy - lastGy;
+        var dz = gz - lastGz;
+        mag = Math.hypot(dx, dy, dz);
+        ax = dx;
+        ay = dy;
+        az = dz;
       }
       lastGx = gx;
       lastGy = gy;
       lastGz = gz;
-      hasLastG = true;
     }
 
-    if (mag > 13 && now - lastShake > 260) {
+    if (acc && (acc.x !== null || acc.y !== null || acc.z !== null)) {
+      var lx = acc.x || 0, ly = acc.y || 0, lz = acc.z || 0;
+      var lMag = Math.hypot(lx, ly, lz);
+      if (lMag > mag) {
+        mag = lMag;
+        ax = lx;
+        ay = ly;
+        az = lz;
+      }
+    }
+
+    if (mag > 10 && now - lastShake > 240) {
       lastShake = now;
+      if (!dropped) drop(true);
+      start();
       var forceX = Math.max(-18, Math.min(18, -ax * 0.85));
-      var forceY = -8 - Math.min(14, mag * 0.45);
+      var forceY = -8 - Math.min(14, mag * 0.5);
       shake(forceX, forceY);
 
       var hint = document.getElementById("box-hint");
@@ -227,7 +239,7 @@
       if (hintEl) hintEl.textContent = "Tap a weapon \u00B7 Shake to toss";
     }
 
-    if (typeof DeviceMotionEvent === "undefined") return;
+    if (typeof window.DeviceMotionEvent === "undefined") return;
     if (typeof DeviceMotionEvent.requestPermission === "function") {
       var reqOnTouch = function () {
         DeviceMotionEvent.requestPermission().then(function (state) {
@@ -277,8 +289,14 @@
   canvas.addEventListener("pointercancel", function (e) { endPointer(e, true); });
   canvas.addEventListener("pointerleave", function () { if (!drag) { hover = null; } });
 
-  document.getElementById("shake").addEventListener("click", function () { shake(); });
-  document.getElementById("redrop").addEventListener("click", function () { drop(true); });
+  var shakeBtn = document.getElementById("shake");
+  if (shakeBtn) {
+    shakeBtn.addEventListener("click", function () {
+      if (!dropped) drop(true);
+      start();
+      shake();
+    });
+  }
 
   // ---------- inspect (weapon flies out of the pile and grows) ----------
   var panel = document.getElementById("inspect");
