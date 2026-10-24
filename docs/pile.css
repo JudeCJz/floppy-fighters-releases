@@ -21,27 +21,6 @@
 .sect-head { margin-bottom: 20px; }
 
 /* ---------- mystery block ---------- */
-.mystery {
-  text-align: center;
-}
-.mystery .sect-head {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-.mystery .sect-head h2::before {
-  display: none;
-}
-.mystery .sect-head p {
-  margin: 0;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 15px;
-}
 .mystery-wrap {
   display: flex;
   flex-direction: column;
@@ -98,9 +77,18 @@
   content: "";
   position: absolute;
   inset: -3px;
-  border: 2px solid rgba(255, 196, 40, .6);
+  border: 2px solid #ffc428;
   border-radius: 20px;
-  box-shadow: 0 0 22px rgba(255, 196, 40, .3);
+  box-shadow: none;
+  pointer-events: none;
+}
+.mb-stage.popped .mystery-block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid #ffc428;
+  border-radius: 18px;
+  box-shadow: none;
   pointer-events: none;
 }
 
@@ -114,13 +102,15 @@
   transition: opacity .25s, background .25s, border-color .25s;
   z-index: 3;
 }
-.mb-stage.rolling .mb-reel {
+.mb-stage.rolling .mb-reel,
+.mb-stage.popped .mb-reel {
   opacity: 1;
+}
+.mb-stage.rolling .mb-reel {
   background: rgba(13, 13, 16, .78);
   border: 1px solid rgba(255, 255, 255, .1);
 }
 .mb-stage.popped .mb-reel {
-  opacity: 1;
   background: transparent;
   border-color: transparent;
 }
@@ -130,7 +120,8 @@
   will-change: transform;
 }
 .mb-slot {
-  flex: 0 0 auto;
+  flex: 0 0 clamp(140px, 20vw, 200px);
+  width: clamp(140px, 20vw, 200px);
   height: 100%;
   display: flex;
   align-items: center;
@@ -138,18 +129,23 @@
   transition: opacity .35s;
 }
 .mb-slot img {
-  max-width: 72%;
-  max-height: 72%;
+  width: 110px;
+  height: 110px;
+  max-width: 75%;
+  max-height: 75%;
   object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .8));
-  transition: transform .35s cubic-bezier(.2, 1.4, .4, 1), filter .35s, opacity .35s;
+  transition: transform .35s cubic-bezier(.2, 1.4, .4, 1), opacity .35s;
 }
 .mb-stage.popped .mb-slot:not(.mb-winner-slot) {
   opacity: 0;
 }
+.mb-stage.popped .mb-slot.mb-winner-slot,
 .mb-stage.popped .mb-slot.mb-winner-slot img {
-  transform: scale(1.22);
-  filter: drop-shadow(0 12px 26px rgba(240, 72, 77, .85));
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: scale(1.18);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .75));
 }
 .mystery-name {
   font-size: clamp(22px, 3vw, 30px);
@@ -173,7 +169,6 @@
 .mystery-name.win {
   color: var(--red-hi);
   animation: pop-in .38s cubic-bezier(.2, 1.4, .4, 1) both;
-  text-shadow: 0 4px 18px rgba(240, 72, 77, .4);
 }
 @keyframes pop-in {
   from { opacity: 0; transform: translateY(10px) scale(0.92); }
@@ -185,6 +180,8 @@
 .slides {
   display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
   padding: 4px 0 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 .slides::-webkit-scrollbar { display: none; }
 .slide {
@@ -193,9 +190,8 @@
   background: var(--bg) center / cover; transition: transform .3s, opacity .3s;
 }
 .slide::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .45); }
-.slide figcaption { position: absolute; left: 20px; right: 20px; bottom: 16px; z-index: 1; }
-.slide b { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
-.slide span { color: rgba(255, 255, 255, .8); font-weight: 600; font-size: 15px; }
+.slide figcaption { position: absolute; left: 24px; bottom: 20px; z-index: 1; margin: 0; }
+.slide b { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; margin: 0; }
 .slide-arrow {
   position: absolute; top: 50%; z-index: 2; width: 48px; height: 48px; margin-top: -24px; border-radius: 50%;
   border: 0; background: rgba(13, 13, 16, .8); color: #fff; font-size: 30px; line-height: 1; cursor: pointer;

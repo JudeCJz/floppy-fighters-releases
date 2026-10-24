@@ -39,12 +39,18 @@
   var resetTimer = null;
   var RESET_DELAY = 5000; // 5 seconds to reset lucky block back to normal
 
+  function getStage() {
+    return document.getElementById("mb-stage") || (block ? block.parentElement : null);
+  }
+
   function resetToNormal() {
     if (resetTimer) {
       clearTimeout(resetTimer);
       resetTimer = null;
     }
-    if (stage) stage.classList.remove("rolling", "popped");
+    var st = getStage();
+    if (st) st.classList.remove("rolling", "popped");
+    if (reel) reel.classList.remove("rolling", "popped");
     if (block) {
       block.classList.remove("rolling", "popped");
       block.title = "Mystery Block";
@@ -54,9 +60,11 @@
       nameEl.classList.remove("rolling", "win");
       nameEl.textContent = "";
     }
-    track.style.transition = "none";
-    track.style.transform = "none";
-    track.innerHTML = "";
+    if (track) {
+      track.style.transition = "none";
+      track.style.transform = "none";
+      track.innerHTML = "";
+    }
     rolling = false;
   }
 
@@ -74,9 +82,14 @@
     }
 
     rolling = true;
-    if (stage) {
-      stage.classList.remove("popped");
-      stage.classList.add("rolling");
+    var st = getStage();
+    if (st) {
+      st.classList.remove("popped");
+      st.classList.add("rolling");
+    }
+    if (reel) {
+      reel.classList.remove("popped");
+      reel.classList.add("rolling");
     }
     block.classList.remove("popped");
     block.classList.add("rolling");
@@ -91,7 +104,7 @@
 
     // Compute dimensions dynamically so slots align with the center block
     var S = block.clientWidth || 160;
-    var W = reel.clientWidth || 760;
+    var W = reel.clientWidth || (st ? st.clientWidth : 760) || 760;
 
     // Horizontal reel: items show outside to the left and right of the block,
     // and travel into the center block from left to right.
@@ -143,8 +156,8 @@
     var lastTicked = START_SLOT;
     var tickTimer = setInterval(function () {
       if (!rolling) { clearInterval(tickTimer); return; }
-      var st = window.getComputedStyle(track);
-      var tr = st.transform || st.webkitTransform;
+      var stStyle = window.getComputedStyle(track);
+      var tr = stStyle.transform || stStyle.webkitTransform;
       if (tr && tr !== "none") {
         var m = tr.match(/matrix.*\((.+)\)/);
         if (m) {
@@ -162,9 +175,14 @@
 
     setTimeout(function () {
       clearInterval(tickTimer);
-      if (stage) {
-        stage.classList.remove("rolling");
-        stage.classList.add("popped");
+      var endStage = getStage();
+      if (endStage) {
+        endStage.classList.remove("rolling");
+        endStage.classList.add("popped");
+      }
+      if (reel) {
+        reel.classList.remove("rolling");
+        reel.classList.add("popped");
       }
       block.classList.remove("rolling");
       block.classList.add("popped");

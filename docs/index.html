@@ -13,8 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="pile.css">
+<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="pile.css?v=4">
 </head>
 <body class="pile-page">
 
@@ -36,7 +36,6 @@
 <section class="armory-box">
   <div class="box-head">
     <h2>THE ARMORY</h2>
-    <p>28 weapons + mystery items. Tap one to look closer.</p>
   </div>
   <div class="box" id="box">
     <canvas id="pile" role="img" aria-label="A pile of Floppy Fighters weapons and mystery items"></canvas>
@@ -53,7 +52,6 @@
 <section class="sect mystery">
   <div class="sect-head">
     <h2>MYSTERY BLOCK</h2>
-    <p>Hit one in a match and you get one of these. Tap it to roll.</p>
   </div>
   <div class="mystery-wrap">
     <div class="mb-stage" id="mb-stage">
@@ -72,17 +70,16 @@
 <section class="sect maps-sect">
   <div class="sect-head">
     <h2>THE MAPS</h2>
-    <p>50+ maps across six themes, plus random Wild Lands maps. Swipe.</p>
   </div>
   <div class="slider">
     <button class="slide-arrow prev" aria-label="Previous map">&#8249;</button>
     <div class="slides" id="slides">
-      <figure class="slide" style="--bg:url(assets/bg_islands.jpg)"><figcaption><b>Sky Islands</b><span>Floating islands, waterfalls and long drops.</span></figcaption></figure>
-      <figure class="slide" style="--bg:url(assets/bg_pillars.jpg)"><figcaption><b>Temple</b><span>Sandstone ruins and torches at sunset.</span></figcaption></figure>
-      <figure class="slide" style="--bg:url(assets/bg_tower.jpg)"><figcaption><b>Castle</b><span>Banners, arches and stone towers.</span></figcaption></figure>
-      <figure class="slide" style="--bg:url(assets/bg_ruins.jpg)"><figcaption><b>Wasteland</b><span>Rocks, spikes and a blood-red sun.</span></figcaption></figure>
-      <figure class="slide" style="--bg:url(assets/bg_bridge.jpg)"><figcaption><b>City</b><span>Rooftops and bridges under the moon.</span></figcaption></figure>
-      <figure class="slide" style="--bg:url(assets/bg_elevator.jpg)"><figcaption><b>Factory</b><span>Steel, lifts and hazard stripes.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_islands.jpg)"><figcaption><b>Sky Islands</b></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_pillars.jpg)"><figcaption><b>Temple</b></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_tower.jpg)"><figcaption><b>Castle</b></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_ruins.jpg)"><figcaption><b>Wasteland</b></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_bridge.jpg)"><figcaption><b>City</b></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_elevator.jpg)"><figcaption><b>Factory</b></figcaption></figure>
     </div>
     <button class="slide-arrow next" aria-label="Next map">&#8250;</button>
   </div>
@@ -93,7 +90,6 @@
 <section class="sect events-sect">
   <div class="sect-head">
     <h2>MAP EVENTS</h2>
-    <p>Any round can roll an event. Sometimes two at once.</p>
   </div>
   <div class="events">
     <article class="event">
@@ -144,8 +140,8 @@
 <a class="to-top" href="#top" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-<script src="weapons.js"></script>
-<script src="pile.js"></script>
-<script src="extras.js"></script>
+<script src="weapons.js?v=4"></script>
+<script src="pile.js?v=4"></script>
+<script src="extras.js?v=4"></script>
 </body>
 </html>
