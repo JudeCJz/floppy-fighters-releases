@@ -13,8 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=8">
-<link rel="stylesheet" href="pile.css?v=12">
+<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="pile.css?v=13">
 </head>
 <body class="pile-page">
 
@@ -64,6 +64,16 @@
       <button class="mystery-block" id="mystery" aria-label="Roll the mystery block">
         <img src="assets/lucky_block.png" alt="" class="mb-block">
       </button>
+      <div class="mb-reveal" id="mb-reveal" aria-hidden="true">
+        <div class="mb-reveal-left">
+          <img id="mb-reveal-img" src="" alt="" draggable="false">
+        </div>
+        <div class="mb-reveal-right">
+          <span class="mb-reveal-badge">LUCKY DROP</span>
+          <h3 class="mb-reveal-name" id="mb-reveal-name"></h3>
+          <p class="mb-reveal-desc" id="mb-reveal-desc"></p>
+        </div>
+      </div>
     </div>
     <div class="mystery-name" id="mb-name" aria-live="polite"></div>
   </div>
@@ -183,8 +193,8 @@
 <a class="to-top" href="#top" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-<script src="weapons.js?v=11"></script>
-<script src="pile.js?v=11"></script>
-<script src="extras.js?v=12"></script>
+<script src="weapons.js?v=13"></script>
+<script src="pile.js?v=13"></script>
+<script src="extras.js?v=13"></script>
 </body>
 </html>

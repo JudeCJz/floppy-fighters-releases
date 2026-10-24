@@ -74,6 +74,10 @@
   var reel = document.getElementById("mb-reel");
   var track = document.getElementById("mb-track");
   var nameEl = document.getElementById("mb-name") || document.getElementById("mb-result");
+  var revealCard = document.getElementById("mb-reveal");
+  var revealImg = document.getElementById("mb-reveal-img");
+  var revealName = document.getElementById("mb-reveal-name");
+  var revealDesc = document.getElementById("mb-reveal-desc");
   var rolling = false;
   var resetTimer = null;
   var RESET_DELAY = 5000; // 5 seconds to reset lucky block back to normal
@@ -99,11 +103,20 @@
       nameEl.classList.remove("rolling", "win");
       nameEl.textContent = "";
     }
+    if (revealImg) revealImg.src = "";
+    if (revealName) revealName.textContent = "";
+    if (revealDesc) revealDesc.textContent = "";
     if (track) {
       track.style.transition = "none";
       track.style.transform = "none";
       track.innerHTML = "";
     }
+    var revealImg = document.getElementById("mb-reveal-img");
+    var revealName = document.getElementById("mb-reveal-name");
+    var revealDesc = document.getElementById("mb-reveal-desc");
+    if (revealImg) revealImg.src = "";
+    if (revealName) revealName.textContent = "";
+    if (revealDesc) revealDesc.textContent = "";
     rolling = false;
   }
 
@@ -227,11 +240,28 @@
       block.classList.add("popped");
       block.title = winnerItem.name;
       block.setAttribute("aria-label", winnerItem.name + " - tap to roll again");
+
+      var revealImg = document.getElementById("mb-reveal-img");
+      var revealName = document.getElementById("mb-reveal-name");
+      var revealDesc = document.getElementById("mb-reveal-desc");
+      if (revealImg) {
+        revealImg.src = "assets/" + winnerItem.img + ".png";
+        revealImg.alt = winnerItem.name;
+      }
+      if (revealName) revealName.textContent = winnerItem.name;
+      if (revealDesc) revealDesc.textContent = winnerItem.info;
+
       if (nameEl) {
         nameEl.classList.remove("rolling");
         nameEl.classList.add("win");
-        nameEl.textContent = winnerItem.name;
+        nameEl.textContent = "";
       }
+      if (revealImg) {
+        revealImg.src = "assets/" + winnerItem.img + ".png";
+        revealImg.alt = winnerItem.name;
+      }
+      if (revealName) revealName.textContent = winnerItem.name;
+      if (revealDesc) revealDesc.textContent = winnerItem.info;
       if (navigator.vibrate) {
         try { navigator.vibrate([30, 40, 50]); } catch (e) {}
       }
