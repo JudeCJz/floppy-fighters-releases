@@ -282,12 +282,76 @@
       return w.stats;
     }
 
+    if (w.name === "Flashbang") {
+      return [
+        ["Blind Duration", "UP TO 3.5 S", 1.0],
+        ["Blast Radius", "884 PX", 1.0],
+        ["Fuse Timer", "3.5 S", 0.88],
+        ["Ammo", "2", 0.33]
+      ];
+    }
+    if (w.name === "Gas Grenade") {
+      return [
+        ["Cloud DPS", "9 / S", 0.45],
+        ["Duration", "6.0 S", 0.75],
+        ["Cloud Radius", "230 PX", 0.82],
+        ["Ammo", "2", 0.33]
+      ];
+    }
+    if (w.name === "Fire Grenade") {
+      return [
+        ["Impact Dmg", "18", 0.25],
+        ["Fire DPS", "16 / S", 0.64],
+        ["Duration", "4.0 S", 0.67],
+        ["Ammo", "2", 0.33]
+      ];
+    }
     if (w.name === "Flamethrower") {
       return [
-        ["Damage", "60 / S", 0.6],
-        ["Range", "SHORT", 0.48],
-        ["Fuel", "4 S", 0.5],
+        ["Damage", "60 / S", 0.60],
+        ["Range", "290 PX", 0.58],
+        ["Fuel", "5.0 S", 0.62],
         ["Move Speed", "75%", 0.75]
+      ];
+    }
+    if (w.name === "Laser Gun") {
+      return [
+        ["Damage", "75 BEAM", 0.75],
+        ["Charge Time", "1.1 S", 0.65],
+        ["Piercing", "ALL WALLS", 1.0],
+        ["Ammo", "4", 0.35]
+      ];
+    }
+    if (w.name === "Freeze Ray") {
+      return [
+        ["Damage", "6 HEAD", 0.10],
+        ["Fire rate", "1.4 / S", 0.24],
+        ["Freeze Time", "2.2 S", 0.73],
+        ["Ammo", "5", 0.35]
+      ];
+    }
+    if (w.name === "Shuriken") {
+      return [
+        ["Damage", "22 HEAD", 0.22],
+        ["Throw rate", "8.3 / S", 0.58],
+        ["Flight Speed", "2600 PX", 0.85],
+        ["Ammo", "10", 0.50]
+      ];
+    }
+    if (w.name === "Ricochet Gun") {
+      return [
+        ["Damage", "24 HEAD", 0.24],
+        ["Fire rate", "2.5 / S", 0.32],
+        ["Ricochet", "3 WALLS", 0.75],
+        ["Ammo", "8", 0.45]
+      ];
+    }
+    if (w.name === "Nuke Launcher") {
+      return [
+        ["Damage", "160 MAX", 1.0],
+        ["Blast Radius", "560 PX", 1.0],
+        ["Knockback", "MASSIVE", 1.0],
+        ["Ammo", "1", 0.17]
       ];
     }
 
@@ -295,50 +359,51 @@
     var pellets = w.pellets || 1;
     var dmg = typeof w.dmg === "number" ? w.dmg : 0;
 
-    // 1. Damage
+    // 1. Damage (never outputs "NONE")
     if (dmg <= 0) {
-      list.push(["Damage", "NONE", 0.04]);
+      if (w.zone_dps) {
+        list.push(["Cloud DPS", w.zone_dps + " / S", Math.min(1.0, w.zone_dps / 20)]);
+      } else {
+        list.push(["Tactical", "STUN / FX", 0.6]);
+      }
     } else {
       var dmgText = dmg + (pellets > 1 ? " x" + pellets : "");
       if (w.group === "gun" || w.group === "melee") dmgText += " HEAD";
-      list.push(["Damage", dmgText, (dmg * pellets) / 100]);
+      list.push(["Damage", dmgText, Math.min(1.0, (dmg * pellets) / 100)]);
     }
 
     // 2. Speed / Rate
     var rate = 1 / (w.cd || 0.5);
-    var rateLabel = (w.group === "melee" ? "Swing speed" : "Fire rate");
-    list.push([rateLabel, (rate >= 10 ? Math.round(rate) : rate.toFixed(1)) + " / S", Math.sqrt(rate / 25)]);
+    var rateLabel = "Fire rate";
+    if (w.group === "melee") {
+      rateLabel = w.name === "Spear" ? "Thrust speed" : "Swing speed";
+    } else if (w.group === "boom" || w.name === "Shuriken") {
+      rateLabel = "Throw rate";
+    }
+    list.push([rateLabel, (rate >= 10 ? Math.round(rate) : rate.toFixed(1)) + " / S", Math.min(1.0, Math.sqrt(rate / 25))]);
 
     // 3. Ammo
     if (w.ammo < 0) {
       list.push(["Ammo", "UNLIMITED", 1.0]);
     } else {
-      list.push(["Ammo", String(w.ammo), w.ammo / 40]);
+      list.push(["Ammo", String(w.ammo), Math.min(1.0, Math.max(0.15, w.ammo / 30))]);
     }
 
     // 4. Special characteristic (always present, never "-")
-    if (w.name === "Flashbang") {
-      list.push(["Blinds for", "UP TO 3.5 S", 1.0]);
-    } else if (w.name === "Freeze Ray") {
-      list.push(["Freeze", "2.2 S", 2.2 / 3.0]);
-    } else if (w.name === "Gas Grenade") {
-      list.push(["Gas Cloud", "6.0 S", 0.8]);
+    if (w.name === "Flashbang" || w.sub === "flash") {
+      list.push(["Blind Duration", "UP TO 3.5 S", 1.0]);
+    } else if (w.name === "Freeze Ray" || w.freeze) {
+      list.push(["Freeze Time", (w.freeze || 2.2) + " S", Math.min(1.0, (w.freeze || 2.2) / 3.0)]);
+    } else if (w.zone_time) {
+      list.push(["Duration", w.zone_time + " S", Math.min(1.0, w.zone_time / 8.0)]);
     } else if (w.radius) {
-      list.push(["Blast", wordRating(w.radius / 280), w.radius / 280]);
-    } else if (w.name === "Spear") {
-      list.push(["Reach", "HUGE", 1.0]);
-    } else if (w.name === "Sword") {
-      list.push(["Reach", "HIGH", 0.82]);
-    } else if (w.name === "Bat") {
-      list.push(["Reach", "MEDIUM", 0.7]);
-    } else if (w.name === "Minigun") {
-      list.push(["Move Speed", "55%", 0.55]);
-    } else if (w.name === "Rocket Launcher") {
-      list.push(["Move Speed", "80%", 0.8]);
-    } else if (w.name === "Nuke Launcher") {
-      list.push(["Move Speed", "60%", 0.6]);
+      list.push(["Blast Radius", w.radius + " PX", Math.min(1.0, w.radius / 560)]);
+    } else if (w.reach) {
+      list.push(["Reach", w.reach + " PX", Math.min(1.0, w.reach / 80)]);
+    } else if (w.move && w.move < 1.0) {
+      list.push(["Move Speed", Math.round(w.move * 100) + "%", w.move]);
     } else if (w.kb) {
-      list.push(["Knockback", wordRating(w.kb / 1500), w.kb / 1500]);
+      list.push(["Knockback", wordRating(w.kb / 1500), Math.min(1.0, w.kb / 1500)]);
     } else {
       list.push(["Handling", "FAST", 0.75]);
     }

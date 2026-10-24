@@ -423,6 +423,28 @@
       goToElement(c);
     });
     slides.addEventListener("dragstart", function (e) { e.preventDefault(); });
+
+    // Click slide to expand map art modal
+    allSlides.forEach(function (slide, idx) {
+      slide.addEventListener("click", function () {
+        if (drag && drag.moved) return;
+        var r = realIndex(idx);
+        var sliderMapIds = ["skyislands", "temple", "castle", "wasteland", "city", "factory"];
+        if (typeof openMapModal === "function") {
+          openMapModal(sliderMapIds[r] || r);
+        }
+      });
+      slide.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          var r = realIndex(idx);
+          var sliderMapIds = ["skyislands", "temple", "castle", "wasteland", "city", "factory"];
+          if (typeof openMapModal === "function") {
+            openMapModal(sliderMapIds[r] || r);
+          }
+        }
+      });
+    });
   }
 
   // ---------- gift drop event card interaction ----------
@@ -577,70 +599,305 @@
 
   // ---------- thunderstorm lightning strike position randomizer ----------
   // User requested: "make the thunder clap at left or right or centre chances"
-  var lightningEl = document.querySelector(".ev-lightning");
-  if (lightningEl) {
-    var STRIKE_POSITIONS = [
-      { name: "left", x: 26 },
-      { name: "center", x: 50 },
-      { name: "right", x: 74 }
-    ];
-    var lastStrikeIdx = -1;
+  // ---------- thunderstorm lightning strike interaction & ambient controller ----------
+  var stormCard = document.getElementById("ev-storm-card") || document.querySelector(".event-storm");
+  var stormPic = document.getElementById("ev-storm") || document.querySelector(".ev-storm");
+  var stormFlash = document.getElementById("ev-storm-flash") || document.querySelector(".ev-storm-flash");
+  var lightningEl = document.getElementById("ev-lightning") || document.querySelector(".ev-lightning");
 
-    function randomizeLightningPosition() {
-      var idx;
-      do {
-        idx = Math.floor(Math.random() * STRIKE_POSITIONS.length);
-      } while (idx === lastStrikeIdx && STRIKE_POSITIONS.length > 1);
-      lastStrikeIdx = idx;
+  if (stormCard && lightningEl) {
+    var thunderAudio = new Audio("assets/sfx_thunder.wav");
+    thunderAudio.volume = 0.1; // 10% volume on tap
+    thunderAudio.preload = "auto";
 
-      // Small organic jitter (+/- 4%) so strikes look dynamic
-      var jitter = (Math.random() * 8) - 4;
-      var posX = Math.round(STRIKE_POSITIONS[idx].x + jitter);
-      var flip = Math.random() > 0.5 ? " scaleX(-1)" : " scaleX(1)";
+    var ambientTimer = null;
+
+    function summonLightning(targetXPercent, isManualTap) {
+      // Pick horizontal location: either where user tapped or a random position (padded away from card edges)
+      var posX = typeof targetXPercent === "number"
+        ? Math.max(24, Math.min(76, targetXPercent))
+        : Math.round(28 + Math.random() * 44);
+
+      var flip = Math.random() > 0.5 ? "scaleX(-1)" : "scaleX(1)";
 
       lightningEl.style.left = posX + "%";
-      lightningEl.style.transform = "translateX(-50%)" + flip;
+      lightningEl.style.setProperty("--flip", flip);
+      if (stormFlash) {
+        stormFlash.style.setProperty("--flash-x", posX + "%");
+      }
+
+      // Play thunder audio ONLY if manually tapped (at 10% volume), NO audio if auto-thundering
+      if (isManualTap) {
+        try {
+          thunderAudio.currentTime = 0;
+          var p = thunderAudio.play();
+          if (p && typeof p.catch === "function") {
+            p.catch(function () {});
+          }
+        } catch (e) {}
+
+        // Mobile haptic vibration only on user tap
+        if (navigator.vibrate) {
+          try { navigator.vibrate([25, 40, 70]); } catch (e) {}
+        }
+      }
+
+      // Restart animations cleanly by triggering reflow on stormFlash
+      stormCard.classList.remove("striking");
+      if (stormFlash) stormFlash.classList.remove("active");
+      lightningEl.classList.remove("striking");
+
+      if (stormFlash) {
+        void stormFlash.offsetWidth; // forces layout reflow reliably on HTMLDivElement
+      } else {
+        void stormCard.offsetWidth;
+      }
+
+      stormCard.classList.add("striking");
+      if (stormFlash) stormFlash.classList.add("active");
+      lightningEl.classList.add("striking");
+
+      // Reset and reschedule ambient background strike
+      scheduleAmbientStrike();
     }
 
-    lightningEl.addEventListener("animationiteration", randomizeLightningPosition);
-    randomizeLightningPosition();
-
-    // Interactive tap: clicking the Thunderstorm card summons a lightning strike with authentic thunder audio
-    var stormPic = document.querySelector(".ev-storm");
-    var stormArticle = stormPic ? stormPic.closest(".event") : null;
-    var thunderAudio = new Audio("assets/sfx_thunder.wav");
-    thunderAudio.volume = 0.6;
-
-    var triggerManualStrike = function () {
-      randomizeLightningPosition();
-      try {
-        thunderAudio.currentTime = 0;
-        thunderAudio.play();
-      } catch (e) {}
-      lightningEl.classList.remove("manual-strike");
-      void lightningEl.offsetWidth;
-      lightningEl.classList.add("manual-strike");
-      if (navigator.vibrate) {
-        try { navigator.vibrate([15, 30, 60]); } catch (e) {}
+    function scheduleAmbientStrike() {
+      if (ambientTimer) {
+        clearTimeout(ambientTimer);
       }
-    };
+      var delay = 4500 + Math.random() * 2500; // 4.5s - 7s
+      ambientTimer = setTimeout(function () {
+        summonLightning(null, false); // no audio for auto-thundering
+      }, delay);
+    }
 
-    lightningEl.addEventListener("animationend", function () {
-      lightningEl.classList.remove("manual-strike");
+    function handleCardTap(e) {
+      var rect = stormPic ? stormPic.getBoundingClientRect() : stormCard.getBoundingClientRect();
+      var targetX = 50;
+      if (e && typeof e.clientX === "number" && rect.width > 0) {
+        targetX = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      } else {
+        targetX = Math.round(24 + Math.random() * 52);
+      }
+      summonLightning(targetX, true); // true = user manual tap
+    }
+
+    stormCard.addEventListener("click", handleCardTap);
+    stormCard.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        summonLightning(null, true); // true = user manual tap
+      }
     });
 
-    if (stormArticle) {
-      stormArticle.style.cursor = "pointer";
-      stormArticle.setAttribute("tabindex", "0");
-      stormArticle.setAttribute("role", "button");
-      stormArticle.setAttribute("aria-label", "Thunderstorm - tap to summon lightning strike");
-      stormArticle.addEventListener("click", triggerManualStrike);
-      stormArticle.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          triggerManualStrike();
-        }
-      });
+    // Clean up strike classes after animation ends
+    lightningEl.addEventListener("animationend", function () {
+      lightningEl.classList.remove("striking");
+      if (stormFlash) stormFlash.classList.remove("active");
+      stormCard.classList.remove("striking");
+    });
+
+    // Start ambient storm loop
+    scheduleAmbientStrike();
+  }
+
+  // ---------- map art lightbox modal ----------
+  var MAP_DATA = [
+    {
+      id: "wasteland",
+      name: "Wasteland",
+      tag: "CRATE RAIN // MAP ART",
+      img: "assets/bg_ruins.jpg",
+      desc: "Desert ruins and cracked stone arches. In-game battleground for chaotic falling crates and explosive TNT drops."
+    },
+    {
+      id: "city",
+      name: "City",
+      tag: "THUNDERSTORM // MAP ART",
+      img: "assets/bg_bridge.jpg",
+      desc: "Suspension bridge over foggy waterways. Dynamic thunderstorm strikes illuminate the skyline during high-voltage battles."
+    },
+    {
+      id: "skyislands",
+      name: "Sky Islands",
+      tag: "GIFT DROP // MAP ART",
+      img: "assets/bg_islands.jpg",
+      desc: "Lush floating islands drifting through high-altitude cloud cover. Home to festive Gift Drops and acrobatic aerial duels."
+    },
+    {
+      id: "temple",
+      name: "Temple",
+      tag: "8 VARIATIONS // MAP ART",
+      img: "assets/bg_pillars.jpg",
+      desc: "Sunlit sanctuary framed by monumental marble pillars, balanced seesaw beams, and ancient stone columns."
+    },
+    {
+      id: "castle",
+      name: "Castle",
+      tag: "9 VARIATIONS // MAP ART",
+      img: "assets/bg_tower.jpg",
+      desc: "Dark gothic tower battlements and multi-tiered fortress ramparts under a stormy twilight sky."
+    },
+    {
+      id: "factory",
+      name: "Factory",
+      tag: "10 VARIATIONS // MAP ART",
+      img: "assets/bg_elevator.jpg",
+      desc: "High-voltage industrial plant engineered with mechanical lifts, motorized hazards, and tight indoor platforms."
     }
+  ];
+
+  // Preload map art images
+  MAP_DATA.forEach(function (m) {
+    new Image().src = m.img;
+  });
+
+  var mapModal = document.getElementById("map-modal");
+  var mapModalImg = document.getElementById("map-modal-img");
+  var mapModalBadge = document.getElementById("map-modal-badge");
+  var mapModalTitle = document.getElementById("map-modal-title");
+  var mapModalDesc = document.getElementById("map-modal-desc");
+  var mapModalCounter = document.getElementById("map-modal-counter");
+  var mapModalClose = document.getElementById("map-modal-close");
+  var mapModalPrev = document.getElementById("map-modal-prev");
+  var mapModalNext = document.getElementById("map-modal-next");
+  var currentMapIdx = 0;
+
+  function showMap(idx) {
+    if (idx < 0) idx = MAP_DATA.length - 1;
+    if (idx >= MAP_DATA.length) idx = 0;
+    currentMapIdx = idx;
+    var data = MAP_DATA[idx];
+
+    if (mapModalImg) {
+      mapModalImg.classList.add("fading");
+      var temp = new Image();
+      temp.onload = function () {
+        mapModalImg.src = data.img;
+        mapModalImg.alt = data.name + " Map Artwork";
+        mapModalImg.classList.remove("fading");
+      };
+      temp.src = data.img;
+    }
+    if (mapModalBadge) mapModalBadge.textContent = data.tag;
+    if (mapModalTitle) mapModalTitle.textContent = data.name;
+    if (mapModalDesc) mapModalDesc.textContent = data.desc;
+    if (mapModalCounter) mapModalCounter.textContent = (idx + 1) + " / " + MAP_DATA.length;
+  }
+
+  function openMapModal(keyOrIdx) {
+    var targetIdx = 0;
+    if (typeof keyOrIdx === "number") {
+      targetIdx = keyOrIdx;
+    } else if (typeof keyOrIdx === "string") {
+      var k = keyOrIdx.toLowerCase();
+      var found = MAP_DATA.findIndex(function (m) {
+        return m.id === k || m.name.toLowerCase() === k || m.img.indexOf(k) !== -1;
+      });
+      if (found !== -1) targetIdx = found;
+    }
+
+    showMap(targetIdx);
+
+    if (mapModal) {
+      mapModal.hidden = false;
+      void mapModal.offsetWidth;
+      mapModal.classList.add("open");
+      if (mapModalClose) mapModalClose.focus({ preventScroll: true });
+    }
+  }
+  window.openMapModal = openMapModal;
+
+  function closeMapModal() {
+    if (!mapModal || !mapModal.classList.contains("open")) return;
+    mapModal.classList.remove("open");
+    setTimeout(function () {
+      mapModal.hidden = true;
+    }, 250);
+  }
+
+  if (mapModalClose) mapModalClose.addEventListener("click", closeMapModal);
+  if (mapModal) {
+    mapModal.addEventListener("click", function (e) {
+      if (e.target === mapModal) closeMapModal();
+    });
+  }
+  if (mapModalPrev) {
+    mapModalPrev.addEventListener("click", function (e) {
+      e.stopPropagation();
+      showMap(currentMapIdx - 1);
+    });
+  }
+  if (mapModalNext) {
+    mapModalNext.addEventListener("click", function (e) {
+      e.stopPropagation();
+      showMap(currentMapIdx + 1);
+    });
+  }
+
+  // Keyboard navigation
+  window.addEventListener("keydown", function (e) {
+    if (!mapModal || !mapModal.classList.contains("open")) return;
+    if (e.key === "Escape") {
+      closeMapModal();
+    } else if (e.key === "ArrowLeft") {
+      showMap(currentMapIdx - 1);
+    } else if (e.key === "ArrowRight") {
+      showMap(currentMapIdx + 1);
+    }
+  });
+
+  // Touch swipe in modal
+  var modalTouchStartX = 0;
+  if (mapModal) {
+    mapModal.addEventListener("touchstart", function (e) {
+      if (e.touches.length === 1) modalTouchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    mapModal.addEventListener("touchend", function (e) {
+      if (e.changedTouches.length === 1) {
+        var dx = e.changedTouches[0].clientX - modalTouchStartX;
+        if (dx > 45) showMap(currentMapIdx - 1);
+        else if (dx < -45) showMap(currentMapIdx + 1);
+      }
+    }, { passive: true });
+  }
+
+  // Crate Rain event: clicking anywhere on .ev-pic.ev-crates or the expand button
+  var cratesPic = document.getElementById("ev-pic-crates") || document.querySelector(".ev-pic.ev-crates");
+  var cratesArtBtn = document.getElementById("ev-art-crates");
+  if (cratesPic) {
+    cratesPic.addEventListener("click", function () {
+      openMapModal("wasteland");
+    });
+    cratesPic.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openMapModal("wasteland");
+      }
+    });
+  }
+  if (cratesArtBtn) {
+    cratesArtBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openMapModal("wasteland");
+    });
+  }
+
+  // Thunderstorm event: expand button
+  var stormArtBtn = document.getElementById("ev-art-storm");
+  if (stormArtBtn) {
+    stormArtBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openMapModal("city");
+    });
+  }
+
+  // Gift Drop event: expand button
+  var giftArtBtn = document.getElementById("ev-art-gift");
+  if (giftArtBtn) {
+    giftArtBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openMapModal("skyislands");
+    });
   }
 })();

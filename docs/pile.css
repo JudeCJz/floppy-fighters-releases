@@ -317,7 +317,39 @@ body.pile-page,
 .slide {
   flex: 0 0 min(78%, 760px); margin: 0; aspect-ratio: 16 / 9; position: relative; overflow: hidden;
   border-radius: 18px; border: 1px solid var(--line); scroll-snap-align: center;
-  background: var(--bg) center / cover; transition: transform .3s, opacity .3s;
+  background: var(--bg) center / cover; transition: transform .3s, opacity .3s, border-color .2s;
+  cursor: pointer;
+}
+.slide:hover { border-color: rgba(255, 255, 255, 0.35); }
+.slide-expand-hint {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(14, 14, 18, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+  pointer-events: none;
+}
+.slide-expand-hint svg { width: 12px; height: 12px; stroke: var(--red-hi); }
+.slide:hover .slide-expand-hint,
+.slide:focus-visible .slide-expand-hint {
+  opacity: 1;
+  transform: translateY(0);
 }
 .slide::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .45); }
 .slide figcaption { position: absolute; left: 24px; bottom: 20px; z-index: 1; margin: 0; text-align: left; }
@@ -347,10 +379,56 @@ body.pile-page,
 .event { border-radius: 20px; overflow: hidden; background: #17171b; border: 1px solid var(--line); }
 .ev-pic { position: relative; height: 130px; display: flex; align-items: flex-end; justify-content: center; gap: 6px; padding-bottom: 14px; overflow: hidden; }
 .ev-pic img { height: 58px; width: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .6)); }
+.ev-pic.ev-crates { cursor: pointer; }
+.ev-pic.ev-crates:hover { filter: brightness(1.06); }
+.ev-art-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  background: rgba(14, 14, 18, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.ev-art-btn svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--red-hi);
+  flex-shrink: 0;
+}
+.event:hover .ev-art-btn,
+.ev-pic:hover .ev-art-btn,
+.ev-art-btn:hover {
+  background: var(--red);
+  border-color: var(--red-hi);
+  color: #ffffff;
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(216, 38, 44, 0.45);
+}
+.ev-art-btn:active {
+  transform: translateY(0) scale(0.96);
+}
 /* Crate Rain Card & Animation */
 .event.event-crates,
 .event:has(.ev-crates) {
   will-change: transform;
+  transform: translate3d(0, 0, 0);
   animation: ev-card-shake 5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
 }
 
@@ -368,13 +446,16 @@ body.pile-page,
   background: radial-gradient(circle at 50% 68%, rgba(255, 140, 20, 0.7) 0%, rgba(255, 60, 0, 0.35) 45%, transparent 75%);
   opacity: 0;
   z-index: 1;
+  will-change: opacity;
+  transform: translateZ(0);
   animation: ev-blast-flash 5s ease-out infinite;
 }
 
 .ev-crates .ev-crate {
   position: relative;
   z-index: 2;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 .ev-crates .ev-crate-wood {
@@ -392,12 +473,12 @@ body.pile-page,
   animation: ev-metal-fall 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
 }
 
-/* Explosive Burst */
+/* Explosive Burst - 100% GPU composited, zero filter repaints */
 .ev-crates .ev-boom {
   position: absolute;
   left: 50%;
   top: 68%;
-  transform: translate(-50%, -50%) scale(0.1);
+  transform: translate3d(-50%, -50%, 0) scale(0.1);
   width: 170px !important;
   height: 170px !important;
   max-width: none;
@@ -405,161 +486,153 @@ body.pile-page,
   pointer-events: none;
   z-index: 4;
   opacity: 0;
-  will-change: transform, opacity, filter;
+  filter: none !important;
+  will-change: transform, opacity;
   animation: ev-boom 5s cubic-bezier(0.15, 0.85, 0.35, 1.2) infinite;
 }
 
 /* 1. Wood crate falls first, sits in lineup, then obliterated right after TNT explosion */
 @keyframes ev-wood-fall {
-  0% { transform: translateY(-160px) rotate(-12deg); opacity: 0; }
+  0% { transform: translate3d(0, -160px, 0) rotate(-12deg); opacity: 0; }
   3% { opacity: 1; }
-  10% { transform: translateY(0) rotate(3deg); }
-  13% { transform: translateY(-7px) rotate(-1deg); }
-  16%, 57% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  /* Blast wave obliterates wood crate right after TNT detonation */
+  10% { transform: translate3d(0, 0, 0) rotate(3deg); }
+  13% { transform: translate3d(0, -7px, 0) rotate(-1deg); }
+  16%, 57% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  /* Blast wave throws wood crate right after TNT detonation without glow */
   58% {
-    transform: translate(-32px, -16px) rotate(-22deg) scale(1.05);
+    transform: translate3d(-32px, -16px, 0) rotate(-22deg) scale(1.05);
     opacity: 0.85;
-    filter: brightness(2.6) drop-shadow(0 0 16px #ff8800);
   }
   59.2% {
-    transform: translate(-75px, -32px) rotate(-48deg) scale(0.6);
+    transform: translate3d(-75px, -32px, 0) rotate(-48deg) scale(0.6);
     opacity: 0;
-    filter: brightness(4);
   }
   59.5%, 90% {
-    transform: scale(0);
+    transform: translate3d(0, 0, 0) scale(0);
     opacity: 0;
   }
   96%, 100% {
-    transform: translateY(-160px) rotate(-12deg);
+    transform: translate3d(0, -160px, 0) rotate(-12deg);
     opacity: 0;
   }
 }
 
 /* 2. Metal crate falls third, heavy thud, sits in lineup, then blasted away right after TNT explosion */
 @keyframes ev-metal-fall {
-  0%, 6% { transform: translateY(-160px) rotate(8deg); opacity: 0; }
+  0%, 6% { transform: translate3d(0, -160px, 0) rotate(8deg); opacity: 0; }
   9% { opacity: 1; }
-  18% { transform: translateY(0) rotate(-2deg); }
-  21% { transform: translateY(-4px) rotate(1deg); }
-  24%, 57% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  /* Shockwave launches and obliterates metal crate right after TNT detonation */
+  18% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  21% { transform: translate3d(0, -4px, 0) rotate(1deg); }
+  24%, 57% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  /* Shockwave launches metal crate right after TNT detonation without glow */
   58% {
-    transform: translate(28px, -14px) rotate(18deg) scale(1.04);
+    transform: translate3d(28px, -14px, 0) rotate(18deg) scale(1.04);
     opacity: 0.85;
-    filter: brightness(2.2) drop-shadow(0 0 16px #ff6600);
   }
   59.2% {
-    transform: translate(70px, -28px) rotate(44deg) scale(0.6);
+    transform: translate3d(70px, -28px, 0) rotate(44deg) scale(0.6);
     opacity: 0;
-    filter: brightness(3.5);
   }
   59.5%, 90% {
-    transform: scale(0);
+    transform: translate3d(0, 0, 0) scale(0);
     opacity: 0;
   }
   96%, 100% {
-    transform: translateY(-160px) rotate(8deg);
+    transform: translate3d(0, -160px, 0) rotate(8deg);
     opacity: 0;
   }
 }
 
 /* 3. TNT crate falls second, lands and sits LINED UP with wood and metal, then detonates */
 @keyframes ev-tnt-detonate {
-  0%, 3% { transform: translateY(-160px) rotate(-8deg); opacity: 0; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .6)); }
+  0%, 3% { transform: translate3d(0, -160px, 0) rotate(-8deg); opacity: 0; }
   6% { opacity: 1; }
-  14% { transform: translateY(0) scale(1.06, 0.94) rotate(-1deg); opacity: 1; }
-  17% { transform: translateY(-5px) rotate(1deg); opacity: 1; }
+  14% { transform: translate3d(0, 0, 0) scale(1.06, 0.94) rotate(-1deg); opacity: 1; }
+  17% { transform: translate3d(0, -5px, 0) rotate(1deg); opacity: 1; }
   20%, 51% {
     /* Lined up calmly alongside wood and metal */
-    transform: translateY(0) rotate(0deg);
-    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .6));
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: none;
     opacity: 1;
   }
-  /* Starts shaking and flashing warning */
+  /* Starts shaking and flashing warning - pure fast GPU brightness */
   52% {
-    transform: translate(-2px, -1px) scale(1.05) rotate(-3deg);
-    filter: brightness(1.9) saturate(1.8) drop-shadow(0 0 12px #ff3700);
+    transform: translate3d(-2px, -1px, 0) scale(1.05) rotate(-3deg);
+    filter: brightness(1.8) saturate(1.8);
     opacity: 1;
   }
   54% {
-    transform: translate(2px, 1px) scale(1.10) rotate(3deg);
-    filter: brightness(2.8) saturate(2.2) drop-shadow(0 0 20px #ff8800);
+    transform: translate3d(2px, 1px, 0) scale(1.10) rotate(3deg);
+    filter: brightness(2.6) saturate(2.2);
     opacity: 1;
   }
   56% {
-    transform: translate(-3px, -1px) scale(1.15) rotate(-4deg);
-    filter: brightness(4.2) drop-shadow(0 0 30px #ffbb00);
+    transform: translate3d(-3px, -1px, 0) scale(1.15) rotate(-4deg);
+    filter: brightness(3.8);
     opacity: 1;
   }
   57.5% {
-    transform: translate(2px, 0) scale(1.22) rotate(3deg);
-    filter: brightness(6.0) drop-shadow(0 0 40px #ffffff);
+    transform: translate3d(2px, 0, 0) scale(1.22) rotate(3deg);
+    filter: brightness(5.5);
     opacity: 1;
   }
   /* Detonation moment: disappears into explosion */
   58% {
-    transform: scale(1.35);
-    filter: brightness(7);
+    transform: translate3d(0, 0, 0) scale(1.35);
+    filter: brightness(6);
     opacity: 0;
   }
   58.1%, 90% {
-    transform: scale(0);
+    transform: translate3d(0, 0, 0) scale(0);
+    filter: none;
     opacity: 0;
   }
-  95%, 100% {
-    transform: translateY(-160px) rotate(-8deg);
+  96%, 100% {
+    transform: translate3d(0, -160px, 0) rotate(-8deg);
+    filter: none;
     opacity: 0;
   }
 }
 
-/* 4. Authentic in-game explosion pop and fiery scale */
+/* 4. Authentic in-game explosion pop and fiery scale - 100% GPU composited */
 @keyframes ev-boom {
   0%, 57% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
-    filter: brightness(2.5) drop-shadow(0 0 0 transparent);
+    transform: translate3d(-50%, -50%, 0) scale(0.1) rotate(0deg);
   }
   58% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(0.35) rotate(-3deg);
-    filter: brightness(3.5) contrast(1.4) drop-shadow(0 0 24px #ffffff) drop-shadow(0 0 40px #ff5500);
+    transform: translate3d(-50%, -50%, 0) scale(0.38) rotate(-3deg);
   }
   61% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.3) rotate(6deg);
-    filter: brightness(2.4) contrast(1.3) drop-shadow(0 0 32px #ff3b00) drop-shadow(0 0 65px #ffaa00);
+    transform: translate3d(-50%, -50%, 0) scale(1.35) rotate(6deg);
   }
   66% {
     opacity: 0.95;
-    transform: translate(-50%, -50%) scale(1.48) rotate(12deg);
-    filter: brightness(1.7) contrast(1.2) drop-shadow(0 0 25px #ff4800) drop-shadow(0 0 45px rgba(255, 120, 0, 0.6));
+    transform: translate3d(-50%, -50%, 0) scale(1.52) rotate(12deg);
   }
   72% {
     opacity: 0.65;
-    transform: translate(-50%, -50%) scale(1.58) rotate(16deg);
-    filter: brightness(1.1) contrast(1.1) drop-shadow(0 0 15px rgba(230, 60, 0, 0.35));
+    transform: translate3d(-50%, -50%, 0) scale(1.6) rotate(16deg);
   }
   78% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.65) rotate(20deg);
-    filter: brightness(0.6) contrast(1.0) drop-shadow(0 0 0 transparent);
+    transform: translate3d(-50%, -50%, 0) scale(1.68) rotate(20deg);
   }
   80%, 100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
-    filter: brightness(1);
+    transform: translate3d(-50%, -50%, 0) scale(0.1) rotate(0deg);
   }
 }
 
 @keyframes ev-card-shake {
-  0%, 57.5% { transform: none; }
-  58% { transform: translate(-3px, 2px) rotate(-0.5deg); }
-  59.5% { transform: translate(3px, -2px) rotate(0.6deg); }
-  61.5% { transform: translate(-2px, 1px) rotate(-0.3deg); }
-  64% { transform: translate(1px, -1px) rotate(0.2deg); }
-  68%, 100% { transform: none; }
+  0%, 57.5% { transform: translate3d(0, 0, 0); }
+  58% { transform: translate3d(-3px, 2px, 0); }
+  59.5% { transform: translate3d(3px, -2px, 0); }
+  61.5% { transform: translate3d(-2px, 1px, 0); }
+  64% { transform: translate3d(1px, -1px, 0); }
+  68%, 100% { transform: translate3d(0, 0, 0); }
 }
 
 @keyframes ev-blast-flash {
@@ -569,6 +642,38 @@ body.pile-page,
   70% { opacity: 0.3; }
   78%, 100% { opacity: 0; }
 }
+/* Thunderstorm event card */
+.event-storm {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.event-storm:hover {
+  transform: translateY(-2px);
+  border-color: rgba(140, 190, 255, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.event-storm:active {
+  transform: translateY(1px) scale(0.99);
+}
+.event-storm:focus-visible {
+  outline: 2px solid #7bb5ff;
+  outline-offset: 2px;
+}
+.event-storm.striking {
+  animation: ev-thunder-rumble 0.35s ease-out;
+}
+@keyframes ev-thunder-rumble {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 1px); }
+  80% { transform: translate(1px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
 .ev-storm {
   background: linear-gradient(180deg, rgba(12, 14, 22, 0.42) 0%, rgba(6, 8, 14, 0.68) 100%), #101014 url(assets/bg_bridge.jpg) center / cover;
   align-items: center;
@@ -577,15 +682,26 @@ body.pile-page,
   position: relative;
   overflow: hidden;
 }
-.ev-storm::after {
-  content: "";
+
+/* Full-sky flash when lightning strikes */
+.ev-storm-flash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.98) 0%, rgba(200, 225, 255, 0.92) 28%, rgba(120, 105, 225, 0.75) 65%, rgba(45, 25, 80, 0.6) 100%);
+  background: radial-gradient(circle at var(--flash-x, 50%) 20%, rgba(255, 255, 255, 0.98) 0%, rgba(195, 225, 255, 0.88) 32%, rgba(95, 140, 255, 0.45) 68%, transparent 100%);
   opacity: 0;
-  animation: storm-flash 5s infinite;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
+}
+.ev-storm-flash.active {
+  animation: ev-flash-strike 0.52s ease-out forwards;
+}
+@keyframes ev-flash-strike {
+  0% { opacity: 0; }
+  6% { opacity: 0.96; }
+  18% { opacity: 0.22; }
+  32% { opacity: 0.9; }
+  52% { opacity: 0.16; }
+  100% { opacity: 0; }
 }
 
 /* Slanted dynamic rain */
@@ -594,7 +710,7 @@ body.pile-page,
   inset: -40px -50px;
   pointer-events: none;
   overflow: hidden;
-  z-index: 2;
+  z-index: 1;
   transform: rotate(-15deg);
 }
 .rain::before {
@@ -635,13 +751,50 @@ body.pile-page,
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
-  width: 92px;
+  transform: translateX(-50%) var(--flip, scaleX(1));
+  width: 150px;
   height: 100%;
   pointer-events: none;
   z-index: 3;
   opacity: 0;
-  animation: lightning-strike 5s infinite;
+  overflow: visible !important;
+  transform-origin: top center;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.ev-lightning.striking {
+  animation: ev-bolt-strike 0.52s ease-out forwards;
+}
+@keyframes ev-bolt-strike {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) var(--flip, scaleX(1)) scaleY(0.3);
+  }
+  6% {
+    opacity: 1;
+    transform: translateX(-50%) var(--flip, scaleX(1)) scaleY(1);
+    filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px #90c8ff) drop-shadow(0 0 42px #5090ff);
+  }
+  18% {
+    opacity: 0.28;
+    transform: translateX(-50%) var(--flip, scaleX(1)) scaleY(1);
+    filter: drop-shadow(0 0 6px #7bb5ff);
+  }
+  32% {
+    opacity: 0.95;
+    transform: translateX(-50%) var(--flip, scaleX(1)) scaleY(1);
+    filter: drop-shadow(0 0 14px #ffffff) drop-shadow(0 0 28px #90c8ff) drop-shadow(0 0 45px #6098ff);
+  }
+  50% {
+    opacity: 0.2;
+    transform: translateX(-50%) var(--flip, scaleX(1)) scaleY(1);
+    filter: drop-shadow(0 0 4px #7bb5ff);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) var(--flip, scaleX(1)) scaleY(1);
+  }
 }
 .ev-lightning path {
   fill: none;
@@ -662,87 +815,6 @@ body.pile-page,
   stroke: #c8e0ff;
   stroke-width: 1.4;
   opacity: 0.92;
-}
-
-@keyframes storm-flash {
-  0%, 75% { opacity: 0; }
-  76.5% { opacity: 0; }
-  77.2% { opacity: 0.88; }
-  78.0% { opacity: 0.18; }
-  78.8% { opacity: 0.95; }
-  80.2% { opacity: 0.35; }
-  82.0% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes lightning-strike {
-  0%, 76.2% {
-    opacity: 0;
-    clip-path: inset(0 0 100% 0);
-    filter: drop-shadow(0 0 8px #9ec5ff) drop-shadow(0 0 16px rgba(120, 170, 255, 0.85));
-  }
-  77.0% {
-    opacity: 0.95;
-    clip-path: inset(0 0 0 0);
-    filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 18px #7bb5ff);
-  }
-  77.8% {
-    opacity: 0.22;
-    clip-path: inset(0 0 0 0);
-    filter: drop-shadow(0 0 4px #7bb5ff);
-  }
-  78.4% {
-    opacity: 0.05;
-    clip-path: inset(0 0 0 0);
-  }
-  78.8% {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-    filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px #90c8ff) drop-shadow(0 0 40px #6098ff);
-  }
-  79.8% {
-    opacity: 0.85;
-    clip-path: inset(0 0 0 0);
-    filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 16px #7bb5ff);
-  }
-  80.6% {
-    opacity: 0.15;
-    clip-path: inset(0 0 0 0);
-    filter: drop-shadow(0 0 4px #7bb5ff);
-  }
-  81.5%, 100% {
-    opacity: 0;
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-.ev-lightning.manual-strike {
-  animation: lightning-strike-instant 0.8s ease-out forwards !important;
-}
-@keyframes lightning-strike-instant {
-  0% {
-    opacity: 0;
-    clip-path: inset(0 0 100% 0);
-  }
-  15% {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-    filter: drop-shadow(0 0 14px #ffffff) drop-shadow(0 0 28px #90c8ff) drop-shadow(0 0 45px #6098ff);
-  }
-  30% {
-    opacity: 0.22;
-  }
-  42% {
-    opacity: 0.95;
-    filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 20px #7bb5ff);
-  }
-  65% {
-    opacity: 0.25;
-  }
-  100% {
-    opacity: 0;
-    clip-path: inset(0 0 0 0);
-  }
 }
 
 /* Gift Drop Event - Interactive wrapped drops */
@@ -935,9 +1007,9 @@ body.pile-page,
 .inspect-tag em { font-style: normal; color: #ffcf3a; margin-left: 8px; }
 .inspect-card h3 { font-size: 28px; margin-bottom: 8px; }
 .inspect-info { margin: 0 0 18px; color: rgba(255, 255, 255, .78); font-size: 15px; }
-.stat { display: grid; grid-template-columns: 96px 1fr 58px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 13px; }
-.stat span { font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
-.stat b { text-align: right; font-weight: 900; }
+.stat { display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 13px; }
+.stat span { font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-size: 11px; white-space: nowrap; }
+.stat b { text-align: right; font-weight: 900; white-space: nowrap; min-width: 54px; }
 .stat i { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .08); overflow: hidden; }
 .stat i::after {
   content: ""; display: block; height: 100%; width: var(--v); border-radius: 4px;
@@ -975,7 +1047,7 @@ body.pile-page,
   .ev-gift-weapon-img { max-height: 48px; max-width: 95px; height: auto !important; }
   .ev-text { padding: 14px 18px; display: flex; align-items: center; justify-content: flex-start; }
   .ev-text h3 { text-align: left; }
-  .stat { grid-template-columns: 84px 1fr 50px; }
+  .stat { grid-template-columns: 84px 1fr auto; }
   .mb-reveal { padding: 8px 12px; border-radius: 18px; }
   .mb-reveal-left { flex: 0 0 92px; }
   .mb-reveal-left img { max-width: 80px; max-height: 75px; }
@@ -1015,4 +1087,194 @@ body.pile-page,
   .foot-inner { justify-content: center; text-align: center; }
   .foot-copy { text-align: center; }
   .foot-links { justify-content: center; width: 100%; margin-top: 4px; }
+}
+
+/* ---------- Map Art Lightbox Modal ---------- */
+.map-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3.5vw, 40px);
+  background: rgba(6, 6, 9, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+}
+.map-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+.map-modal-card {
+  position: relative;
+  width: min(94vw, 1020px);
+  max-height: 94vh;
+  background: #131317;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.9), 0 0 36px rgba(216, 38, 44, 0.2);
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.93) translateY(14px);
+  transition: transform 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+.map-modal.open .map-modal-card {
+  transform: scale(1) translateY(0);
+}
+.map-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(18, 18, 22, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.map-modal-close:hover {
+  background: var(--red);
+  border-color: var(--red-hi);
+  transform: scale(1.08);
+}
+.map-modal-view {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0a0a0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.map-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.22s ease, transform 0.25s ease;
+}
+.map-modal-img.fading {
+  opacity: 0.3;
+  transform: scale(0.98);
+}
+.map-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(12, 12, 16, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.map-modal-nav:hover {
+  background: var(--red);
+  transform: translateY(-50%) scale(1.1);
+}
+.map-modal-nav.prev { left: 14px; }
+.map-modal-nav.next { right: 14px; }
+.map-modal-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  z-index: 5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(12, 12, 16, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.map-modal-meta {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #141418;
+}
+.map-modal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.map-modal-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--red-hi);
+}
+.map-modal-title {
+  margin: 0;
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 900;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1.15;
+}
+.map-modal-desc {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.68);
+}
+.map-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.map-modal-hint {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+@media (max-width: 720px) {
+  .map-modal { padding: 10px; }
+  .map-modal-card { width: 98vw; border-radius: 16px; }
+  .map-modal-meta { padding: 12px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .map-modal-title { font-size: 18px; }
+  .map-modal-desc { font-size: 12px; }
+  .map-modal-hint { display: none; }
+  .map-modal-nav { width: 38px; height: 38px; font-size: 24px; }
 }
