@@ -1,6 +1,22 @@
-// Mystery block roll + swipeable map slider for pile.html.
+// Page extras: nav Download / back-to-top visibility, mystery block roll, swipeable map slider.
 (function () {
   "use strict";
+
+  // ---------- nav Download: hidden while the big DOWNLOAD APK button is on screen ----------
+  var heroBtn = document.querySelector(".btn-big");
+  var navBtn = document.querySelector(".nav-dl");
+  if (heroBtn && navBtn && "IntersectionObserver" in window) {
+    navBtn.classList.add("away");
+    new IntersectionObserver(function (entries) {
+      navBtn.classList.toggle("away", entries[0].isIntersecting);
+    }, { rootMargin: "-60px 0px 0px 0px" }).observe(heroBtn);
+  }
+
+  // ---------- back-to-top (style.css only shows it on phones) ----------
+  var toTop = document.querySelector(".to-top");
+  function updateToTop() { toTop.classList.toggle("show", window.scrollY > 700); }
+  window.addEventListener("scroll", updateToTop, { passive: true });
+  updateToTop();
 
   // ---------- mystery block ----------
   // Roll weights match LUCKY_ITEMS in scripts/game.gd; odds are deliberately never shown on the page.

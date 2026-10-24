@@ -4,177 +4,138 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Floppy Fighters</title>
-<meta name="description" content="Floppy Fighters: a free ragdoll stick-figure brawler for Android. Grab a weapon, knock your friends off the map, play on your Wi-Fi.">
+<meta name="description" content="Floppy Fighters: a free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
 <meta name="theme-color" content="#1b1b1f">
 <meta property="og:title" content="Floppy Fighters">
-<meta property="og:description" content="Free ragdoll stick-figure brawler for Android. Up to 8 friends on your Wi-Fi.">
+<meta property="og:description" content="Free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
 <meta property="og:image" content="assets/app_icon.png">
 <link rel="icon" href="assets/app_icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pile.css">
 </head>
-<body>
+<body class="pile-page">
 
 <header class="nav">
   <a class="brand" href="#top"><img src="assets/app_icon.png" alt=""><span>FLOPPY FIGHTERS</span></a>
-  <nav>
-    <a href="#features">Features</a>
-    <a href="#weapons">Weapons</a>
-    <a href="#maps">Maps</a>
-    <a href="#updates">Updates</a>
-  </nav>
   <a class="btn btn-red btn-sm js-download nav-dl" href="https://github.com/JudeCJz/floppy-fighters-releases/releases/latest">Download</a>
 </header>
 
-<!-- HERO: looks like the game's main menu (paper left, art right) -->
-<section class="hero" id="top">
-  <div class="slashes" aria-hidden="true"><i></i><i></i><i></i></div>
-  <div class="hero-art art" data-slot="hero" aria-hidden="true"></div>
-  <div class="hero-text">
-    <img class="logo" data-logo src="assets/logo_title.png" alt="Floppy Fighters">
-    <p class="kicker"><span></span>LAN STICK-FIGURE BRAWLER</p>
-    <p class="lead">Grab a weapon, flop around, knock your friends off the map. Up to 8 players on the same Wi-Fi, or fight the CPU.</p>
-    <a class="btn btn-red btn-big js-download" href="https://github.com/JudeCJz/floppy-fighters-releases/releases/latest">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>DOWNLOAD APK</span>
-    </a>
-    <p class="dl-meta"><b class="js-ver">Latest version</b><span class="js-size"></span> · Android · Free</p>
-    <p class="dl-tip">First install? Android will ask to allow installs from your browser or file app. Updates install over the old version.</p>
-  </div>
+<section class="intro" id="top">
+  <img class="intro-logo" src="assets/logo_title.png" alt="Floppy Fighters">
+  <p class="intro-line">Ragdoll stick-figure brawler for Android. Up to 16 players on the same Wi-Fi.</p>
+  <a class="btn btn-red btn-big js-download" href="https://github.com/JudeCJz/floppy-fighters-releases/releases/latest">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>DOWNLOAD APK</span>
+  </a>
+  <p class="intro-meta"><b class="js-ver">Latest version</b><span class="js-size"></span> · Android · Free</p>
 </section>
 
-<!-- quick numbers -->
-<section class="stats">
-  <div><b>8</b><span>players per match</span></div>
-  <div><b>28</b><span>weapons</span></div>
-  <div><b>50+</b><span>maps + random ones</span></div>
-  <div><b>LAN</b><span>play on your Wi-Fi</span></div>
+<section class="armory-box">
+  <div class="box-head">
+    <h2>THE ARMORY</h2>
+    <p>28 weapons. Tap one to look closer.</p>
+  </div>
+  <div class="box" id="box">
+    <canvas id="pile" role="img" aria-label="A pile of all 28 Floppy Fighters weapons"></canvas>
+    <p class="box-hint" id="box-hint">Tap a weapon</p>
+  </div>
+  <div class="box-tools">
+    <button class="btn btn-ghost" id="shake">Shake the box</button>
+    <button class="btn btn-ghost" id="redrop">Drop again</button>
+  </div>
+  <!-- keyboard / screen reader way in -->
+  <ul class="sr-only" id="weapon-list"></ul>
 </section>
 
-<!-- FEATURES -->
-<section class="section" id="features">
-  <h2 class="title"><span></span>WHAT'S IN IT</h2>
-  <div class="features">
-    <article class="card feat">
-      <div class="feat-pic"><img data-icon="lan" src="assets/icon_wifi.png" alt=""></div>
-      <h3>LAN multiplayer</h3>
-      <p>One phone hosts, everyone on the same Wi-Fi joins in a tap. No accounts, no internet. If the host leaves, the match carries on.</p>
-    </article>
-    <article class="card feat">
-      <div class="feat-pic"><img data-icon="weapons" src="assets/weapon_rocket_launcher.png" alt=""></div>
-      <h3>28 weapons</h3>
-      <p>Pistols, snipers, swords, spears, rockets, a nuke, a coconut launcher and grenades that freeze, burn, gas or suck everyone into a black hole.</p>
-    </article>
-    <article class="card feat">
-      <div class="feat-pic"><img data-icon="maps" src="assets/crown.png" alt=""></div>
-      <h3>Maps &amp; themes</h3>
-      <p>50+ hand-built maps across six themes, plus random Wild Lands maps that are different every round. Seesaws, spinners, lifts and ice.</p>
-    </article>
-    <article class="card feat">
-      <div class="feat-pic"><img data-icon="crates" src="assets/crate_explosive.png" alt=""></div>
-      <h3>Crate rain</h3>
-      <p>Some rounds the sky drops crates. Stand on them, hide behind them, or shoot the TNT ones next to your friends.</p>
-    </article>
-    <article class="card feat storm-card">
-      <div class="feat-pic"><i class="bolt" aria-hidden="true"></i></div>
-      <h3>Thunderstorms</h3>
-      <p>Rain and lightning roll in on random rounds. The rain puts fire out faster, so plan your fire grenades.</p>
-    </article>
-    <article class="card feat">
-      <div class="feat-pic"><img data-icon="power" src="assets/lucky_block.png" alt=""></div>
-      <h3>Power-ups</h3>
-      <p>Crack a lucky block for homing bullets, invisibility, a Totem of Life or a rare weapon. Gift boxes pop open into something random.</p>
-    </article>
+<!-- MYSTERY BLOCK: tap to roll what's inside -->
+<section class="sect mystery">
+  <div class="sect-head">
+    <h2>MYSTERY BLOCK</h2>
+    <p>Hit one in a match and you get one of these. Tap it to roll.</p>
   </div>
-</section>
-
-<!-- CHAOS STRIP: crates falling over a stormy background -->
-<section class="chaos art" data-slot="storm" aria-label="Crate rain">
-  <div class="rain" aria-hidden="true"></div>
-  <div class="falling" aria-hidden="true">
-    <img src="assets/crate_wood.png" alt=""><img src="assets/crate_explosive.png" alt=""><img src="assets/crate_metal.png" alt="">
-    <img src="assets/gift_0.png" alt=""><img src="assets/crate_wood.png" alt=""><img src="assets/lucky_block.png" alt="">
-  </div>
-  <div class="chaos-text">
-    <p class="tag">EVERY ROUND IS DIFFERENT</p>
-    <h2>Crates fall. Lightning strikes. <em>Someone gets a nuke.</em></h2>
-  </div>
-</section>
-
-<!-- WEAPONS -->
-<section class="section armory art" data-slot="armory" id="weapons">
-  <h2 class="title"><span></span>THE ARMORY</h2>
-  <div class="chips" role="tablist">
-    <button class="chip on" data-filter="all">All</button>
-    <button class="chip" data-filter="gun">Guns</button>
-    <button class="chip" data-filter="boom">Explosives</button>
-    <button class="chip" data-filter="melee">Melee &amp; thrown</button>
-  </div>
-  <div class="weapons collapsed" id="weapon-grid"></div>
-  <div class="more-wrap"><button class="btn btn-ghost" id="weapon-more">Show all weapons</button></div>
-</section>
-
-<!-- POWER-UPS -->
-<section class="section powers">
-  <h2 class="title"><span></span>POWER-UPS &amp; PICKUPS</h2>
-  <div class="power-row">
-    <div class="power"><img src="assets/lucky_block.png" alt=""><b>Lucky Block</b><span>Hit it, see what you get</span></div>
-    <div class="power"><img src="assets/homing_grace.png" alt=""><b>Homing</b><span>Bullets curve into enemies</span></div>
-    <div class="power"><img src="assets/power_invisible.png" alt=""><b>Invisible</b><span>Others only see your gun</span></div>
-    <div class="power"><img src="assets/totem_of_life.png" alt=""><b>Totem of Life</b><span>Cheat death once</span></div>
-    <div class="power"><img src="assets/gift_3.png" alt=""><b>Gift Box</b><span>Opens into a random weapon</span></div>
-    <div class="power"><img src="assets/crown.png" alt=""><b>Crown</b><span>Worn by last round's winner</span></div>
-  </div>
-</section>
-
-<!-- MAPS -->
-<section class="section" id="maps">
-  <h2 class="title"><span></span>SIX THEMES</h2>
-  <div class="maps">
-    <figure style="--bg:url(assets/bg_islands.jpg)"><figcaption>Sky Islands</figcaption></figure>
-    <figure style="--bg:url(assets/bg_pillars.jpg)"><figcaption>Temple</figcaption></figure>
-    <figure style="--bg:url(assets/bg_tower.jpg)"><figcaption>Castle</figcaption></figure>
-    <figure style="--bg:url(assets/bg_ruins.jpg)"><figcaption>Wasteland</figcaption></figure>
-    <figure style="--bg:url(assets/bg_bridge.jpg)"><figcaption>City</figcaption></figure>
-    <figure style="--bg:url(assets/bg_elevator.jpg)"><figcaption>Factory</figcaption></figure>
-  </div>
-</section>
-
-<!-- ONLINE TEASER -->
-<section class="section">
-  <div class="online">
-    <div class="online-art art" data-slot="online" aria-hidden="true"><img class="online-icon" src="assets/icon_wifi.png" alt=""></div>
-    <div class="online-text">
-      <p class="tag"><span class="pulse"></span>COMING SOON</p>
-      <h2>Online mode</h2>
-      <p>Right now you fight friends on the same Wi-Fi. Online play is next: brawl with friends anywhere, no shared network needed.</p>
-      <a class="btn btn-ghost" href="https://github.com/JudeCJz/floppy-fighters-releases">Watch the releases on GitHub</a>
+  <div class="mystery-wrap">
+    <button class="mystery-block" id="mystery" aria-label="Roll the mystery block">
+      <img src="assets/lucky_block.png" alt="" class="mb-block">
+      <span class="mb-reel" aria-hidden="true"><img id="mb-reel" alt=""></span>
+    </button>
+    <div class="mystery-result" id="mb-result" aria-live="polite">
+      <p class="tag">TAP THE BLOCK</p>
+      <h3>What will you get?</h3>
+      <p class="muted">Power-ups and weapons you can't find anywhere else.</p>
     </div>
   </div>
 </section>
 
-<!-- UPDATES -->
-<section class="section" id="updates">
-  <h2 class="title"><span></span>UPDATES</h2>
-  <div class="updates">
-    <div class="card latest">
-      <p class="tag">LATEST</p>
-      <h3 class="js-ver">Floppy Fighters</h3>
-      <p class="muted js-date">Checking GitHub...</p>
-      <ul class="js-latest-notes notes"></ul>
-      <a class="btn btn-red js-download" href="https://github.com/JudeCJz/floppy-fighters-releases/releases/latest">Download APK</a>
+<!-- MAPS: swipeable slider -->
+<section class="sect maps-sect">
+  <div class="sect-head">
+    <h2>THE MAPS</h2>
+    <p>50+ maps across six themes, plus random Wild Lands maps. Swipe.</p>
+  </div>
+  <div class="slider">
+    <button class="slide-arrow prev" aria-label="Previous map">&#8249;</button>
+    <div class="slides" id="slides">
+      <figure class="slide" style="--bg:url(assets/bg_islands.jpg)"><figcaption><b>Sky Islands</b><span>Floating islands, waterfalls and long drops.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_pillars.jpg)"><figcaption><b>Temple</b><span>Sandstone ruins and torches at sunset.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_tower.jpg)"><figcaption><b>Castle</b><span>Banners, arches and stone towers.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_ruins.jpg)"><figcaption><b>Wasteland</b><span>Rocks, spikes and a blood-red sun.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_bridge.jpg)"><figcaption><b>City</b><span>Rooftops and bridges under the moon.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_elevator.jpg)"><figcaption><b>Factory</b><span>Steel, lifts and hazard stripes.</span></figcaption></figure>
     </div>
-    <div class="card history">
-      <ol class="js-history"></ol>
-      <a class="more" href="https://github.com/JudeCJz/floppy-fighters-releases/releases">All releases &rarr;</a>
-    </div>
+    <button class="slide-arrow next" aria-label="Next map">&#8250;</button>
+  </div>
+  <div class="dots" id="dots"></div>
+</section>
+
+<!-- MAP EVENTS -->
+<section class="sect events-sect">
+  <div class="sect-head">
+    <h2>MAP EVENTS</h2>
+    <p>Any round can roll an event. Sometimes two at once.</p>
+  </div>
+  <div class="events">
+    <article class="event">
+      <div class="ev-pic ev-crates"><img src="assets/crate_wood.png" alt=""><img src="assets/crate_explosive.png" alt=""><img src="assets/crate_metal.png" alt=""></div>
+      <div class="ev-text">
+        <h3>Crate Rain</h3>
+        <p>Crates drop from the sky every few seconds. Climb them, hide behind them, and watch out for TNT: it blows up if it falls again.</p>
+      </div>
+    </article>
+    <article class="event">
+      <div class="ev-pic ev-storm"><i class="bolt" aria-hidden="true"></i></div>
+      <div class="ev-text">
+        <h3>Thunderstorm</h3>
+        <p>Rain and lightning. Now and then a bolt hits a fighter for half their health. The rain puts fire out faster.</p>
+      </div>
+    </article>
+    <article class="event">
+      <div class="ev-pic ev-gift"><img src="assets/gift_0.png" alt=""><img src="assets/gift_3.png" alt=""></div>
+      <div class="ev-text">
+        <h3>Gift Drop</h3>
+        <p>Every weapon falls as a gift box. Open it to find out what you got.</p>
+      </div>
+    </article>
   </div>
 </section>
+
+<!-- weapon details (the tapped weapon flies in and grows) -->
+<div class="inspect" id="inspect" hidden>
+  <div class="inspect-card" role="dialog" aria-modal="true" aria-labelledby="inspect-name">
+    <button class="inspect-close" id="inspect-close" aria-label="Close">&times;</button>
+    <div class="inspect-pic" id="inspect-pic"></div>
+    <p class="inspect-tag" id="inspect-tag"></p>
+    <h3 id="inspect-name"></h3>
+    <p class="inspect-info" id="inspect-info"></p>
+    <div class="inspect-stats" id="inspect-stats"></div>
+  </div>
+</div>
+<img class="flyer" id="flyer" alt="" hidden>
 
 <footer class="foot">
-  <img data-logo src="assets/logo_title.png" alt="Floppy Fighters">
+  <img src="assets/logo_title.png" alt="Floppy Fighters">
   <p>A free ragdoll brawler for Android, made by JudeCJz. Art made with ChatGPT, touched up by hand.</p>
   <p class="inspired">Inspired by <a href="https://store.steampowered.com/app/674940/Stick_Fight_The_Game/">Stick Fight: The Game</a> by <a href="https://landfall.se/">Landfall</a>. Its Android version was discontinued, so I made my own to keep playing with friends. Go play the original!<br><span>Fan-made, not affiliated with Landfall.</span></p>
   <p class="links">
@@ -186,7 +147,9 @@
 
 <a class="to-top" href="#top" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
-<script src="notes.js"></script>
-<script src="main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script src="weapons.js"></script>
+<script src="pile.js"></script>
+<script src="extras.js"></script>
 </body>
 </html>

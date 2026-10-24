@@ -313,15 +313,6 @@
       if (entries[0].isIntersecting) { if (!dropped) drop(true); start(); }
       else running = false;
     }, { threshold: 0.15 }).observe(box);
-    if (/[?&]test/.test(location.search)) window.__pile = {  // TEMP test hook
-      state: function () { return { running: running, dropped: dropped, k: k, w: width, h: height, n: bodies.length,
-        ys: bodies.map(function (b) { return Math.round(b.position.y); }),
-        pos: bodies.map(function (b) { return [b.weapon.name, Math.round(b.position.x), Math.round(b.position.y)]; }), sleeping: bodies.filter(function (b) { return b.isSleeping; }).length }; },
-      step: function (n) { for (var i = 0; i < n; i++) M.Engine.update(engine, STEP); draw(); },
-      drop: drop, shake: shake, draw: draw,
-      inspect: function (name) { inspect(bodies.filter(function (x) { return x.weapon.name === name; })[0]); },
-      close: closeInspect
-    };
   });
 
   window.addEventListener("resize", function () {
