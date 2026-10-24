@@ -46,15 +46,46 @@
       "<b>" + w[0] + "</b><span>" + w[3] + "</span>" + (w[4] ? '<em class="lucky">LUCKY BLOCK ONLY</em>' : "");
     grid.appendChild(el);
   });
+  // Collapsed: only the first PREVIEW weapons of the current filter; "Show all" fades the rest in.
+  var PREVIEW = 6;
+  var moreBtn = document.getElementById("weapon-more");
+  var filter = "all", expanded = false;
+
+  function layoutWeapons(animate) {
+    var shown = 0;
+    grid.querySelectorAll(".weapon").forEach(function (w) {
+      var match = filter === "all" || w.dataset.group === filter;
+      w.classList.toggle("hide", !match);
+      w.classList.remove("pop");
+      if (!match) return;
+      var extra = shown >= PREVIEW;
+      w.classList.toggle("more", extra && !expanded);
+      if (extra && expanded && animate) {
+        w.style.animationDelay = Math.min(shown - PREVIEW, 16) * 0.04 + "s";
+        void w.offsetWidth;  // restart the animation
+        w.classList.add("pop");
+      }
+      shown++;
+    });
+    var hidden = shown > PREVIEW;
+    grid.classList.toggle("collapsed", hidden && !expanded);
+    moreBtn.parentNode.hidden = !hidden;
+    moreBtn.textContent = expanded ? "Show less" : "Show all " + shown + " weapons";
+  }
+
   document.querySelectorAll(".chip").forEach(function (chip) {
     chip.addEventListener("click", function () {
       document.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c === chip); });
-      var f = chip.dataset.filter;
-      grid.querySelectorAll(".weapon").forEach(function (w) {
-        w.classList.toggle("hide", f !== "all" && w.dataset.group !== f);
-      });
+      filter = chip.dataset.filter;
+      layoutWeapons(true);
     });
   });
+  moreBtn.addEventListener("click", function () {
+    expanded = !expanded;
+    layoutWeapons(true);
+    if (!expanded) document.getElementById("weapons").scrollIntoView({ behavior: "smooth" });
+  });
+  layoutWeapons(false);
 
   // ---------- nav Download: hidden while the big hero button is on screen ----------
   var heroBtn = document.querySelector(".btn-big");
