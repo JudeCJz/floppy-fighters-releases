@@ -14,16 +14,44 @@
   var canvas = document.getElementById("pile");
   var ctx = canvas.getContext("2d");
   var imgs = {};
+  var silhouettes = {};
   var engine, walls, bodies = [], k = 1, width = 0, height = 0, dpr = 1;
   var running = false, dropped = false, gen = 0, last = 0, acc = 0;
   var hover = null, hiddenBody = null, down = null, drag = null, blasts = [];
 
   // ---------- setup ----------
+  // Pre-generate crisp white silhouettes of each weapon sprite for clean in-game style outline on hover
+  function getSilhouette(name) {
+    if (silhouettes[name]) return silhouettes[name];
+    var im = imgs[name];
+    if (!im || !im.naturalWidth || !im.naturalHeight) return null;
+    try {
+      var c = document.createElement("canvas");
+      c.width = im.naturalWidth;
+      c.height = im.naturalHeight;
+      var ictx = c.getContext("2d");
+      ictx.drawImage(im, 0, 0);
+      ictx.globalCompositeOperation = "source-in";
+      ictx.fillStyle = "#ffffff";
+      ictx.fillRect(0, 0, c.width, c.height);
+      silhouettes[name] = c;
+      return c;
+    } catch (err) {
+      return null;
+    }
+  }
+
   function loadImages(cb) {
     var left = WEAPONS.length;
     WEAPONS.forEach(function (w) {
       var im = new Image();
-      im.onload = im.onerror = function () { if (--left === 0) cb(); };
+      im.onload = function () {
+        getSilhouette(w.name);
+        if (--left === 0) cb();
+      };
+      im.onerror = function () {
+        if (--left === 0) cb();
+      };
       im.src = "assets/" + w.png + ".png";
       imgs[w.name] = im;
     });
@@ -114,7 +142,17 @@
       ctx.save();
       ctx.translate(b.position.x, b.position.y);
       ctx.rotate(b.angle);
-      if (b === hover || (drag && drag.bodyB === b)) { ctx.shadowColor = "rgba(240, 72, 77, .95)"; ctx.shadowBlur = 20; }
+      if (b === hover || (drag && drag.bodyB === b)) {
+        var sil = getSilhouette(b.weapon.name);
+        if (sil) {
+          // Crisp clean white border with no blur/bleeding, exactly matching the in-game weapon outline
+          var outline = 2.4;
+          for (var i = 0; i < 12; i++) {
+            var ang = i * Math.PI * 2 / 12;
+            ctx.drawImage(sil, -b.dw / 2 + Math.cos(ang) * outline, -b.dh / 2 + Math.sin(ang) * outline, b.dw, b.dh);
+          }
+        }
+      }
       ctx.drawImage(imgs[b.weapon.name], -b.dw / 2, -b.dh / 2, b.dw, b.dh);
       ctx.restore();
     });

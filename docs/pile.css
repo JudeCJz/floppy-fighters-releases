@@ -189,8 +189,17 @@
   background: var(--bg) center / cover; transition: transform .3s, opacity .3s;
 }
 .slide::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .45); }
-.slide figcaption { position: absolute; left: 24px; bottom: 20px; z-index: 1; margin: 0; }
-.slide b { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; margin: 0; }
+.slide figcaption { position: absolute; left: 24px; bottom: 20px; z-index: 1; margin: 0; text-align: left; }
+.slide b { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; margin: 0; line-height: 1.1; }
+.slide span {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #ffc428;
+  margin-top: 6px;
+}
 .slide-arrow {
   position: absolute; top: 50%; z-index: 2; width: 48px; height: 48px; margin-top: -24px; border-radius: 50%;
   border: 0; background: rgba(13, 13, 16, .8); color: #fff; font-size: 30px; line-height: 1; cursor: pointer;
@@ -327,14 +336,13 @@
   .stat { grid-template-columns: 84px 1fr 50px; }
 }
 
-/* ---------- sleek minimized footer ---------- */
+/* ---------- sleek footer ---------- */
 .foot {
   background: #0d0d10 !important;
   border-top: 1px solid var(--line);
   color: var(--muted) !important;
-  padding: 22px var(--gutter) 26px !important;
+  padding: 24px var(--gutter) 28px !important;
   font-size: 13px;
-  text-align: center;
 }
 .foot-inner {
   max-width: 1160px;
@@ -343,15 +351,19 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
 }
-.foot-copy { color: var(--muted); font-size: 13px; font-weight: 500; }
+.foot-copy { color: var(--muted); font-size: 13px; font-weight: 500; text-align: left; max-width: 760px; }
 .foot-copy b { color: #fff; font-weight: 800; }
+.foot-title { margin-bottom: 6px; font-size: 13px; }
+.foot-note { font-size: 12px; line-height: 1.55; color: rgba(255, 255, 255, .55); }
+.foot-note em { font-style: normal; color: rgba(255, 255, 255, .88); font-weight: 600; }
 .foot-links { display: flex; gap: 20px; align-items: center; }
 .foot-links a { color: var(--muted) !important; text-decoration: none; font-weight: 700; font-size: 13px; transition: color .15s; }
 .foot-links a:hover { color: var(--red-hi) !important; }
 
-@media (max-width: 680px) {
+@media (max-width: 720px) {
   .foot-inner { justify-content: center; text-align: center; }
-  .foot-links { justify-content: center; }
+  .foot-copy { text-align: center; }
+  .foot-links { justify-content: center; width: 100%; margin-top: 4px; }
 }
