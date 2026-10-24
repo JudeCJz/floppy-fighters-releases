@@ -409,4 +409,207 @@
     });
     slides.addEventListener("dragstart", function (e) { e.preventDefault(); });
   }
+
+  // ---------- gift drop event card interaction ----------
+  // Authentic Godot loot table weights from scripts/weapons.gd (W.DEFS) and scripts/game.gd (_pick_weapon())
+  var TOTAL_GIFT_SPRITES = 8;
+  for (var gi = 0; gi < TOTAL_GIFT_SPRITES; gi++) {
+    new Image().src = "assets/gift_" + gi + ".png";
+  }
+
+  var giftCard = document.getElementById("ev-gift");
+  if (giftCard) {
+    var giftBoxes = document.getElementById("ev-gift-boxes");
+    var giftBox0 = document.getElementById("ev-gift-box-0");
+    var giftBox1 = document.getElementById("ev-gift-box-1");
+    var giftBurst = document.getElementById("ev-gift-burst");
+    var giftReveal = document.getElementById("ev-gift-reveal");
+    var giftWeaponImg = document.getElementById("ev-gift-weapon-img");
+    var giftWeaponName = document.getElementById("ev-gift-name");
+
+    var giftState = "idle"; // "idle" | "popping" | "revealed"
+    var giftResetTimer = null;
+    var currentGifts = [-1, -1];
+    var GIFT_DISPLAY_DURATION = 4500; // brief display before auto-resetting
+
+    // Authentic weight fallback matching W.DEFS in scripts/weapons.gd
+    var WEAPON_WEIGHT_FALLBACK = {
+      "Sticky Bomb": 0.8,
+      "Cluster Grenade": 0.8,
+      "Impact Grenade": 0.8,
+      "Fire Grenade": 0.8,
+      "Black Hole Grenade": 0.7,
+      "Coco Launcher": 1.0,
+      "Nuke Launcher": 0.5,
+      "Mine Layer": 0.9,
+      "Flashbang": 1.6,
+      "Gas Grenade": 0.7,
+      "Laser Gun": 0.6,
+      "Flamethrower": 1.6,
+      "Grenade Launcher": 0.8
+    };
+
+    function randomizeGiftSprites() {
+      var g0, g1;
+      do {
+        g0 = Math.floor(Math.random() * TOTAL_GIFT_SPRITES);
+      } while (g0 === currentGifts[0] && TOTAL_GIFT_SPRITES > 1);
+      do {
+        g1 = Math.floor(Math.random() * TOTAL_GIFT_SPRITES);
+      } while (g1 === g0 || (g1 === currentGifts[1] && TOTAL_GIFT_SPRITES > 2));
+      currentGifts = [g0, g1];
+      if (giftBox0) giftBox0.src = "assets/gift_" + g0 + ".png";
+      if (giftBox1) giftBox1.src = "assets/gift_" + g1 + ".png";
+    }
+
+    // Pick weapon according to Godot game.gd _pick_weapon() loot table
+    function pickLootWeapon() {
+      var pool = (window.FF_WEAPONS || []).filter(function (w) {
+        return w.group !== "power"; // only weapons drop from gift boxes
+      });
+      if (!pool || pool.length === 0) {
+        return { name: "Pistol", png: "weapon_pistol" };
+      }
+      var totalWeight = 0;
+      for (var i = 0; i < pool.length; i++) {
+        var w = pool[i];
+        var wt = typeof w.weight === "number" ? w.weight : (WEAPON_WEIGHT_FALLBACK[w.name] || 1.0);
+        totalWeight += wt;
+      }
+      var r = Math.random() * totalWeight;
+      for (var j = 0; j < pool.length; j++) {
+        var item = pool[j];
+        var itemWeight = typeof item.weight === "number" ? item.weight : (WEAPON_WEIGHT_FALLBACK[item.name] || 1.0);
+        r -= itemWeight;
+        if (r <= 0) return item;
+      }
+      return pool[0];
+    }
+
+    function createBurstSparks() {
+      if (!giftBurst) return;
+      giftBurst.innerHTML = "";
+      var flash = document.createElement("div");
+      flash.className = "ev-gift-flash";
+      giftBurst.appendChild(flash);
+      // In-game 8 impact burst sparks (TAU * k / 8.0)
+      for (var k = 0; k < 8; k++) {
+        var spark = document.createElement("div");
+        spark.className = "ev-gift-spark";
+        spark.style.setProperty("--angle", (k * 45) + "deg");
+        giftBurst.appendChild(spark);
+      }
+    }
+
+    function resetGiftCard() {
+      if (giftResetTimer) {
+        clearTimeout(giftResetTimer);
+        giftResetTimer = null;
+      }
+      giftState = "idle";
+      giftCard.classList.remove("popping", "revealed");
+      if (giftBurst) giftBurst.innerHTML = "";
+      if (giftBox0) giftBox0.classList.remove("tapped");
+      if (giftBox1) giftBox1.classList.remove("tapped");
+      randomizeGiftSprites();
+      giftCard.setAttribute("aria-label", "Gift Drop - tap a gift box to open a weapon");
+    }
+
+    function openGift(tappedBox) {
+      if (giftResetTimer) {
+        clearTimeout(giftResetTimer);
+        giftResetTimer = null;
+      }
+      giftState = "popping";
+
+      if (tappedBox) {
+        tappedBox.classList.add("tapped");
+      }
+
+      var weapon = pickLootWeapon();
+
+      if (giftWeaponImg) {
+        giftWeaponImg.src = "assets/" + weapon.png + ".png";
+        giftWeaponImg.alt = weapon.name;
+      }
+      if (giftWeaponName) {
+        giftWeaponName.textContent = weapon.name;
+      }
+
+      createBurstSparks();
+      giftCard.classList.add("popping");
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([25, 35, 45]); } catch (e) {}
+      }
+
+      setTimeout(function () {
+        giftState = "revealed";
+        giftCard.classList.remove("popping");
+        giftCard.classList.add("revealed");
+        giftCard.setAttribute("aria-label", "Gift Drop: unwrapped " + weapon.name + "! Tap to close and switch gift.");
+
+        giftResetTimer = setTimeout(function () {
+          resetGiftCard();
+        }, GIFT_DISPLAY_DURATION);
+      }, 180);
+    }
+
+    function handleCardTap(e) {
+      if (giftState === "popping") return;
+
+      if (giftState === "revealed") {
+        // Tapping again resets it and switches to another random gift box sprite
+        resetGiftCard();
+        return;
+      }
+
+      // Identify which box was clicked (if any)
+      var target = e.target;
+      var tappedBox = (target === giftBox1) ? giftBox1 : giftBox0;
+      openGift(tappedBox);
+    }
+
+    giftCard.addEventListener("click", handleCardTap);
+    giftCard.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCardTap(e);
+      }
+    });
+
+    // Initial random gift box sprites on page load
+    randomizeGiftSprites();
+  }
+
+  // ---------- thunderstorm lightning strike position randomizer ----------
+  // User requested: "make the thunder clap at left or right or centre chances"
+  var lightningEl = document.querySelector(".ev-lightning");
+  if (lightningEl) {
+    var STRIKE_POSITIONS = [
+      { name: "left", x: 26 },
+      { name: "center", x: 50 },
+      { name: "right", x: 74 }
+    ];
+    var lastStrikeIdx = -1;
+
+    function randomizeLightningPosition() {
+      var idx;
+      do {
+        idx = Math.floor(Math.random() * STRIKE_POSITIONS.length);
+      } while (idx === lastStrikeIdx && STRIKE_POSITIONS.length > 1);
+      lastStrikeIdx = idx;
+
+      // Small organic jitter (+/- 4%) so strikes look dynamic
+      var jitter = (Math.random() * 8) - 4;
+      var posX = Math.round(STRIKE_POSITIONS[idx].x + jitter);
+      var flip = Math.random() > 0.5 ? " scaleX(-1)" : " scaleX(1)";
+
+      lightningEl.style.left = posX + "%";
+      lightningEl.style.transform = "translateX(-50%)" + flip;
+    }
+
+    lightningEl.addEventListener("animationiteration", randomizeLightningPosition);
+    randomizeLightningPosition();
+  }
 })();

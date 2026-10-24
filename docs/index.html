@@ -14,11 +14,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=8">
-<link rel="stylesheet" href="pile.css?v=8">
+<link rel="stylesheet" href="pile.css?v=12">
 </head>
 <body class="pile-page">
 
 <div class="bg-wallpaper" id="bg-wallpaper" aria-hidden="true"></div>
+<div class="flashbang-screen" id="flashbang-screen" aria-hidden="true"></div>
 
 <header class="nav">
   <a class="brand" href="#top"><img src="assets/app_icon.png" alt=""><span>FLOPPY FIGHTERS</span></a>
@@ -94,20 +95,58 @@
     <h2>MAP EVENTS</h2>
   </div>
   <div class="events">
-    <article class="event">
-      <div class="ev-pic ev-crates"><img src="assets/crate_wood.png" alt=""><img src="assets/crate_explosive.png" alt=""><img src="assets/crate_metal.png" alt=""></div>
+    <article class="event event-crates">
+      <div class="ev-pic ev-crates">
+        <img src="assets/crate_wood.png" class="ev-crate ev-crate-wood" alt="">
+        <img src="assets/crate_explosive.png" class="ev-crate ev-crate-tnt" alt="">
+        <img src="assets/crate_metal.png" class="ev-crate ev-crate-metal" alt="">
+        <img src="assets/fx_explosion.png" class="ev-boom" alt="" aria-hidden="true">
+      </div>
       <div class="ev-text">
         <h3>Crate Rain</h3>
       </div>
     </article>
     <article class="event">
-      <div class="ev-pic ev-storm"><i class="bolt" aria-hidden="true"></i></div>
+      <div class="ev-pic ev-storm">
+        <div class="rain" aria-hidden="true">
+          <span class="rain-drop" style="--x: 5%; --d: 0.0s; --dur: 0.45s; --h: 30px; --o: 0.7;"></span>
+          <span class="rain-drop" style="--x: 12%; --d: 0.25s; --dur: 0.52s; --h: 24px; --o: 0.5;"></span>
+          <span class="rain-drop" style="--x: 20%; --d: 0.1s; --dur: 0.42s; --h: 36px; --o: 0.85;"></span>
+          <span class="rain-drop" style="--x: 28%; --d: 0.35s; --dur: 0.48s; --h: 22px; --o: 0.45;"></span>
+          <span class="rain-drop" style="--x: 35%; --d: 0.18s; --dur: 0.4s; --h: 34px; --o: 0.8;"></span>
+          <span class="rain-drop" style="--x: 43%; --d: 0.42s; --dur: 0.55s; --h: 26px; --o: 0.6;"></span>
+          <span class="rain-drop" style="--x: 50%; --d: 0.05s; --dur: 0.44s; --h: 32px; --o: 0.75;"></span>
+          <span class="rain-drop" style="--x: 58%; --d: 0.28s; --dur: 0.5s; --h: 20px; --o: 0.5;"></span>
+          <span class="rain-drop" style="--x: 65%; --d: 0.12s; --dur: 0.43s; --h: 38px; --o: 0.9;"></span>
+          <span class="rain-drop" style="--x: 73%; --d: 0.38s; --dur: 0.47s; --h: 25px; --o: 0.65;"></span>
+          <span class="rain-drop" style="--x: 82%; --d: 0.22s; --dur: 0.53s; --h: 28px; --o: 0.7;"></span>
+          <span class="rain-drop" style="--x: 90%; --d: 0.08s; --dur: 0.41s; --h: 35px; --o: 0.85;"></span>
+          <span class="rain-drop" style="--x: 97%; --d: 0.32s; --dur: 0.49s; --h: 22px; --o: 0.55;"></span>
+          <span class="rain-drop" style="--x: 16%; --d: 0.46s; --dur: 0.46s; --h: 30px; --o: 0.75;"></span>
+          <span class="rain-drop" style="--x: 40%; --d: 0.5s; --dur: 0.43s; --h: 27px; --o: 0.65;"></span>
+          <span class="rain-drop" style="--x: 68%; --d: 0.54s; --dur: 0.51s; --h: 33px; --o: 0.8;"></span>
+          <span class="rain-drop" style="--x: 86%; --d: 0.48s; --dur: 0.44s; --h: 29px; --o: 0.7;"></span>
+        </div>
+        <svg class="ev-lightning" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <path class="lightning-glow" d="M 50 0 L 54 18 L 40 36 L 58 54 L 44 72 L 64 92 L 46 114 L 54 124 L 34 140" />
+          <path class="lightning-core" d="M 50 0 L 54 18 L 40 36 L 58 54 L 44 72 L 64 92 L 46 114 L 54 124 L 34 140" />
+          <path class="lightning-branch" d="M 40 36 L 24 50 L 29 64 L 14 78 M 24 50 L 16 56 M 58 54 L 75 68 L 70 84 L 88 100 M 75 68 L 84 72 M 44 72 L 28 86 L 32 100 M 64 92 L 78 106 L 74 120 M 46 114 L 32 127" />
+        </svg>
+      </div>
       <div class="ev-text">
         <h3>Thunderstorm</h3>
       </div>
     </article>
-    <article class="event">
-      <div class="ev-pic ev-gift"><img src="assets/gift_0.png" alt=""><img src="assets/gift_3.png" alt=""></div>
+    <article class="event event-gift">
+      <div class="ev-pic ev-gift" id="ev-gift" role="button" tabindex="0" aria-label="Gift Drop - tap to unwrap a mystery weapon">
+        <div class="ev-gift-boxes" id="ev-gift-boxes">
+          <img class="ev-gift-box" id="ev-gift-box-0" src="assets/gift_0.png" alt="Gift box" draggable="false">
+          <img class="ev-gift-box" id="ev-gift-box-1" src="assets/gift_3.png" alt="Gift box" draggable="false">
+        </div>
+        <div class="ev-gift-reveal" id="ev-gift-reveal" aria-hidden="true">
+          <img class="ev-gift-weapon-img" id="ev-gift-weapon-img" src="" alt="" draggable="false">
+        </div>
+      </div>
       <div class="ev-text">
         <h3>Gift Drop</h3>
       </div>
@@ -144,8 +183,8 @@
 <a class="to-top" href="#top" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-<script src="weapons.js?v=8"></script>
-<script src="pile.js?v=8"></script>
-<script src="extras.js?v=8"></script>
+<script src="weapons.js?v=11"></script>
+<script src="pile.js?v=11"></script>
+<script src="extras.js?v=12"></script>
 </body>
 </html>

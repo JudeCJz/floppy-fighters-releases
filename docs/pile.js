@@ -216,106 +216,6 @@
     }
   }
 
-  // ---------- earth tilt / gravity & lateral reaction ----------
-  var currentGx = 0;
-  var currentGy = 1;
-  var lastWakeTime = 0;
-  var hasMotion = false;
-
-  function applyGravity(targetGx, targetGy) {
-    // Clamp gravity to safe stable bounds
-    targetGx = Math.max(-2.0, Math.min(2.0, targetGx));
-    targetGy = Math.max(0.15, Math.min(2.0, targetGy));
-
-    // Smooth transition
-    currentGx += (targetGx - currentGx) * 0.35;
-    currentGy += (targetGy - currentGy) * 0.35;
-
-    if (engine && engine.gravity) {
-      engine.gravity.x = currentGx;
-      engine.gravity.y = currentGy;
-    }
-
-    // Wake bodies when tilting so they immediately slide towards the earth
-    var now = performance.now();
-    if (now - lastWakeTime > 120 && (Math.abs(currentGx) > 0.08 || Math.abs(targetGx - currentGx) > 0.08)) {
-      lastWakeTime = now;
-      if (!dropped) drop(true);
-      start();
-      bodies.forEach(wake);
-    }
-  }
-
-  function onMotion(e) {
-    var a = e.accelerationIncludingGravity;
-    if (!a || (a.x === null && a.y === null)) return;
-    hasMotion = true;
-
-    if (openBody) return; // don't shift pile while modal is open
-
-    var rawX = a.x || 0;
-    var rawY = a.y || 0;
-
-    // a.x is along phone width. Tilted right or moved left produces negative reaction force.
-    // So canvas gx is -rawX / 9.8.
-    var gx = -rawX / 9.8 * 1.35;
-    // a.y is along phone height. When upright, rawY ~ 9.8 m/s² (+y downward in canvas).
-    var gy = rawY / 9.8;
-    if (gy < 0.2) gy = 0.35; // keep gentle downward gravity when phone is flat on table
-
-    applyGravity(gx, gy);
-  }
-
-  function onOrientation(e) {
-    if (hasMotion) return; // motion is active and handles linear acceleration
-    if (e.gamma === null && e.beta === null) return;
-    if (openBody) return;
-
-    var gamma = e.gamma || 0; // -90 to +90 (left/right tilt)
-    var beta = e.beta || 90;  // -180 to +180 (front/back tilt)
-
-    var radG = gamma * Math.PI / 180;
-    var gx = Math.sin(radG) * 1.4;
-    var gy = Math.cos(radG);
-    if (beta < 20) gy = 0.35;
-
-    applyGravity(gx, gy);
-  }
-
-  function enableMotion() {
-    if (typeof window.DeviceMotionEvent !== "undefined") {
-      if (typeof DeviceMotionEvent.requestPermission === "function") {
-        DeviceMotionEvent.requestPermission().then(function (res) {
-          if (res === "granted") window.addEventListener("devicemotion", onMotion, { passive: true });
-        }).catch(function () {});
-      } else {
-        window.addEventListener("devicemotion", onMotion, { passive: true });
-      }
-    }
-
-    if (typeof window.DeviceOrientationEvent !== "undefined") {
-      if (typeof DeviceOrientationEvent.requestPermission === "function") {
-        DeviceOrientationEvent.requestPermission().then(function (res) {
-          if (res === "granted") window.addEventListener("deviceorientation", onOrientation, { passive: true });
-        }).catch(function () {});
-      } else {
-        window.addEventListener("deviceorientation", onOrientation, { passive: true });
-      }
-    }
-  }
-
-  function initMotion() {
-    var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ("ontouchstart" in window);
-    if (isMobile) {
-      var hintEl = document.getElementById("box-hint");
-      if (hintEl) hintEl.textContent = "Tap an item \u00B7 Tilt to slide";
-    }
-
-    enableMotion();
-    window.addEventListener("pointerdown", enableMotion, { once: true });
-  }
-  initMotion();
-
   canvas.addEventListener("pointerdown", function (e) {
     var p = pointIn(e);
     down = { p: p, t: performance.now(), body: bodyAt(p), mouse: e.pointerType === "mouse", id: e.pointerId };
@@ -357,7 +257,6 @@
   var shakeBtn = document.getElementById("shake");
   if (shakeBtn) {
     shakeBtn.addEventListener("click", function () {
-      enableMotion();
       if (!dropped) drop(true);
       start();
       shake();
@@ -478,10 +377,31 @@
     return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: im.naturalWidth * s, h: im.naturalHeight * s };
   }
 
+  var flashAudio = new Audio("assets/sfx_flashbang.wav");
+  var flashScreen = document.getElementById("flashbang-screen");
+
   function inspect(b) {
     if (openBody) return;
     openBody = b; hiddenBody = b; hover = null;
     var w = b.weapon;
+
+    // Flashbang special effect: authentic audio & full-screen blinding whiteout
+    if (w.name === "Flashbang") {
+      try {
+        flashAudio.currentTime = 0;
+        var p = flashAudio.play();
+        if (p && typeof p.catch === "function") { p.catch(function () {}); }
+      } catch (err) {}
+      if (flashScreen) {
+        flashScreen.classList.remove("fading");
+        flashScreen.classList.add("active");
+        setTimeout(function () {
+          flashScreen.classList.remove("active");
+          flashScreen.classList.add("fading");
+        }, 800);
+      }
+    }
+
     fillCard(w);
     pic.innerHTML = "";
     panel.hidden = false;
