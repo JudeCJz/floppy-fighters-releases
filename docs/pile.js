@@ -225,7 +225,7 @@
     var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ("ontouchstart" in window);
     if (isMobile) {
       var hintEl = document.getElementById("box-hint");
-      if (hintEl) hintEl.textContent = "Tap a weapon \u00B7 Shake to toss";
+      if (hintEl) hintEl.textContent = "Tap an item \u00B7 Shake to toss";
     }
 
     enableMotion();
@@ -288,10 +288,20 @@
     return '<div class="stat"><span>' + label + '</span><i style="--v:' + Math.round(Math.max(0.04, Math.min(1, frac)) * 100) + '%"></i><b>' + value + "</b></div>";
   }
   function fillCard(w) {
-    var groups = { gun: "Gun", boom: "Explosive", melee: "Melee & thrown" };
-    document.getElementById("inspect-tag").innerHTML = groups[w.group] + (w.lucky ? "<em>Lucky block only</em>" : "");
+    var groups = { gun: "Gun", boom: "Explosive", melee: "Melee & thrown", power: "Power-up" };
+    var tagHtml = (w.tag || groups[w.group] || "Power-up");
+    if (w.lucky) tagHtml += "<em>" + (w.luckyTag || "Lucky block only") + "</em>";
+    document.getElementById("inspect-tag").innerHTML = tagHtml;
     document.getElementById("inspect-name").textContent = w.name;
     document.getElementById("inspect-info").textContent = w.info;
+    if (w.stats && Array.isArray(w.stats)) {
+      var html = "";
+      w.stats.forEach(function (st) {
+        html += stat(st[0], st[1], st[2]);
+      });
+      document.getElementById("inspect-stats").innerHTML = html;
+      return;
+    }
     var rate = 1 / w.cd;
     var html = stat("Damage", w.dmg ? w.dmg + (w.pellets ? " x" + w.pellets : "") : "-", (w.dmg * (w.pellets || 1)) / MAX.dmg);
     html += stat("Fire rate", (rate >= 10 ? Math.round(rate) : rate.toFixed(1)) + "/s", rate / MAX.rate);

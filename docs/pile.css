@@ -163,13 +163,12 @@
 .ev-storm { background: #101014 url(assets/bg_bridge.jpg) center / cover; align-items: center; padding: 0; }
 .ev-storm::after { content: ""; position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 5s infinite; }
 .ev-storm .bolt { width: 40px; height: 84px; }
-.ev-gift { background: #141113; }
+.ev-gift { background: #101014 url(assets/bg_islands.jpg) center / cover; }
 .ev-gift img { animation: ev-bob 1.8s ease-in-out infinite; }
 .ev-gift img:nth-child(2) { animation-delay: .4s; }
 @keyframes ev-bob { 50% { transform: translateY(-10px) rotate(4deg); } }
-.ev-text { padding: 18px 20px 22px; }
-.ev-text h3 { font-size: 21px; margin-bottom: 6px; }
-.ev-text p:last-child { margin: 0; color: rgba(255, 255, 255, .74); font-size: 14px; }
+.ev-text { padding: 16px 18px 18px; text-align: center; }
+.ev-text h3 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: .02em; }
 
 /* the box: open-top steel crate */
 .box {
@@ -271,6 +270,7 @@
   .ev-pic { height: auto; min-height: 130px; padding-bottom: 12px; }
   .ev-pic img { height: 40px; }
   .ev-crates img:nth-child(3) { display: none; }
-  .ev-text { padding: 14px 16px 16px; }
+  .ev-text { padding: 14px 18px; display: flex; align-items: center; justify-content: flex-start; }
+  .ev-text h3 { text-align: left; }
   .stat { grid-template-columns: 84px 1fr 50px; }
 }

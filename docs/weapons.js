@@ -57,5 +57,17 @@ window.FF_WEAPONS = [
   { name: "Spear", png: "weapon_spear", group: "melee", size: 120, dmg: 34, cd: 0.55, ammo: -1, kb: 1000,
     info: "Longest reach. Thrown, it flies straight - a head hit is a knockout." },
   { name: "Shuriken", png: "shuriken", group: "melee", size: 28, dmg: 22, cd: 0.12, ammo: 10, kb: 260,
-    info: "Throwing stars. One per tap, fast and straight - they stick in walls. Headshots hurt extra." }
+    info: "Throwing stars. One per tap, fast and straight - they stick in walls. Headshots hurt extra." },
+  { name: "Homing Grace", png: "homing_grace", group: "power", size: 48, lucky: true,
+    info: "Your shots, throws and punches curve and steer toward enemies.",
+    stats: [["Duration", "3 s", 0.38], ["Targeting", "All attacks", 1.0], ["Drop", "Lucky block", 1.0]] },
+  { name: "Invisible", png: "power_invisible", group: "power", size: 48, lucky: true,
+    info: "Vanish for 8 seconds. Everyone else only sees your weapon floating around - no body, name or health bar.",
+    stats: [["Duration", "8 s", 1.0], ["Stealth", "Ghost mode", 1.0], ["Drop", "Lucky block", 1.0]] },
+  { name: "Totem of Life", png: "totem_of_life", group: "power", size: 50, lucky: true,
+    info: "Cancels your next death once: instead of dying you come back with 50 HP.",
+    stats: [["Duration", "Until used", 1.0], ["Revive HP", "50 HP", 0.5], ["Drop", "Lucky block", 1.0]] },
+  { name: "Lucky Block", png: "lucky_block", group: "power", size: 52, lucky: true, luckyTag: "Match drop", tag: "Mystery Crate",
+    info: "Mystery crate that falls during matches. Hit or touch it to get a game-changing power-up or special weapon.",
+    stats: [["Drops every", "15-25 s", 0.6], ["Items inside", "5 items", 1.0], ["Drop", "Sky drop", 1.0]] }
 ];
