@@ -961,19 +961,19 @@ body.pile-page,
   .slide-arrow { display: none; }
   .slide span { font-size: 13px; }
   .events { grid-template-columns: 1fr; }
-  .event { display: grid; grid-template-columns: 120px 1fr; }
+  .event { display: grid; grid-template-columns: 1fr 1fr; }
   .ev-pic { height: auto; min-height: 130px; padding-bottom: 12px; }
-  .ev-pic img { height: 40px; }
-  .ev-crates { gap: 4px; }
-  .ev-crates .ev-crate-wood { height: 38px; }
-  .ev-crates .ev-crate-tnt { height: 35px; }
-  .ev-crates .ev-crate-metal { height: 32px; display: block !important; }
-  .ev-crates .ev-boom { width: 125px !important; height: 125px !important; top: 68%; }
-  .ev-gift .ev-gift-box { height: 38px; }
-  .ev-gift-boxes { gap: 4px; padding-bottom: 10px; }
-  .ev-gift-weapon-img { max-height: 48px; max-width: 95px; height: auto !important; }
-  .ev-text { padding: 14px 18px; display: flex; align-items: center; justify-content: flex-start; }
-  .ev-text h3 { text-align: left; }
+  .ev-pic img { height: 42px; }
+  .ev-crates { gap: 6px; padding-bottom: 24px; }
+  .ev-crates .ev-crate-wood { height: 44px; }
+  .ev-crates .ev-crate-tnt { height: 40px; }
+  .ev-crates .ev-crate-metal { height: 36px; display: block !important; }
+  .ev-crates .ev-boom { width: 140px !important; height: 140px !important; top: 60%; }
+  .ev-gift .ev-gift-box { height: 40px; }
+  .ev-gift-boxes { gap: 6px; padding-bottom: 14px; }
+  .ev-gift-weapon-img { max-height: 52px; max-width: 110px; height: auto !important; }
+  .ev-text { padding: 14px 16px; display: flex; align-items: center; justify-content: flex-start; }
+  .ev-text h3 { text-align: left; font-size: clamp(16px, 4.2vw, 20px); }
   .stat { grid-template-columns: 84px 1fr auto; }
   .mb-reveal { padding: 8px 12px; border-radius: 18px; }
   .mb-reveal-left { flex: 0 0 92px; }
