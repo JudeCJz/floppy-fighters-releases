@@ -702,48 +702,43 @@
   }
 
   // ---------- map art lightbox modal ----------
+  // Only pops out when clicking on map slides in THE MAPS slider
   var MAP_DATA = [
-    {
-      id: "wasteland",
-      name: "Wasteland",
-      tag: "CRATE RAIN // MAP ART",
-      img: "assets/bg_ruins.jpg",
-      desc: "Desert ruins and cracked stone arches. In-game battleground for chaotic falling crates and explosive TNT drops."
-    },
-    {
-      id: "city",
-      name: "City",
-      tag: "THUNDERSTORM // MAP ART",
-      img: "assets/bg_bridge.jpg",
-      desc: "Suspension bridge over foggy waterways. Dynamic thunderstorm strikes illuminate the skyline during high-voltage battles."
-    },
     {
       id: "skyislands",
       name: "Sky Islands",
-      tag: "GIFT DROP // MAP ART",
       img: "assets/bg_islands.jpg",
-      desc: "Lush floating islands drifting through high-altitude cloud cover. Home to festive Gift Drops and acrobatic aerial duels."
+      desc: "12 Arena Variations"
     },
     {
       id: "temple",
       name: "Temple",
-      tag: "8 VARIATIONS // MAP ART",
       img: "assets/bg_pillars.jpg",
-      desc: "Sunlit sanctuary framed by monumental marble pillars, balanced seesaw beams, and ancient stone columns."
+      desc: "8 Arena Variations"
     },
     {
       id: "castle",
       name: "Castle",
-      tag: "9 VARIATIONS // MAP ART",
       img: "assets/bg_tower.jpg",
-      desc: "Dark gothic tower battlements and multi-tiered fortress ramparts under a stormy twilight sky."
+      desc: "9 Arena Variations"
+    },
+    {
+      id: "wasteland",
+      name: "Wasteland",
+      img: "assets/bg_ruins.jpg",
+      desc: "4 Arena Variations"
+    },
+    {
+      id: "city",
+      name: "City",
+      img: "assets/bg_bridge.jpg",
+      desc: "9 Arena Variations"
     },
     {
       id: "factory",
       name: "Factory",
-      tag: "10 VARIATIONS // MAP ART",
       img: "assets/bg_elevator.jpg",
-      desc: "High-voltage industrial plant engineered with mechanical lifts, motorized hazards, and tight indoor platforms."
+      desc: "10 Arena Variations"
     }
   ];
 
@@ -754,7 +749,6 @@
 
   var mapModal = document.getElementById("map-modal");
   var mapModalImg = document.getElementById("map-modal-img");
-  var mapModalBadge = document.getElementById("map-modal-badge");
   var mapModalTitle = document.getElementById("map-modal-title");
   var mapModalDesc = document.getElementById("map-modal-desc");
   var mapModalCounter = document.getElementById("map-modal-counter");
@@ -779,7 +773,6 @@
       };
       temp.src = data.img;
     }
-    if (mapModalBadge) mapModalBadge.textContent = data.tag;
     if (mapModalTitle) mapModalTitle.textContent = data.name;
     if (mapModalDesc) mapModalDesc.textContent = data.desc;
     if (mapModalCounter) mapModalCounter.textContent = (idx + 1) + " / " + MAP_DATA.length;
@@ -860,44 +853,5 @@
         else if (dx < -45) showMap(currentMapIdx + 1);
       }
     }, { passive: true });
-  }
-
-  // Crate Rain event: clicking anywhere on .ev-pic.ev-crates or the expand button
-  var cratesPic = document.getElementById("ev-pic-crates") || document.querySelector(".ev-pic.ev-crates");
-  var cratesArtBtn = document.getElementById("ev-art-crates");
-  if (cratesPic) {
-    cratesPic.addEventListener("click", function () {
-      openMapModal("wasteland");
-    });
-    cratesPic.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        openMapModal("wasteland");
-      }
-    });
-  }
-  if (cratesArtBtn) {
-    cratesArtBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      openMapModal("wasteland");
-    });
-  }
-
-  // Thunderstorm event: expand button
-  var stormArtBtn = document.getElementById("ev-art-storm");
-  if (stormArtBtn) {
-    stormArtBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      openMapModal("city");
-    });
-  }
-
-  // Gift Drop event: expand button
-  var giftArtBtn = document.getElementById("ev-art-gift");
-  if (giftArtBtn) {
-    giftArtBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      openMapModal("skyislands");
-    });
   }
 })();

@@ -321,36 +321,6 @@ body.pile-page,
   cursor: pointer;
 }
 .slide:hover { border-color: rgba(255, 255, 255, 0.35); }
-.slide-expand-hint {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  background: rgba(14, 14, 18, 0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: all 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
-  pointer-events: none;
-}
-.slide-expand-hint svg { width: 12px; height: 12px; stroke: var(--red-hi); }
-.slide:hover .slide-expand-hint,
-.slide:focus-visible .slide-expand-hint {
-  opacity: 1;
-  transform: translateY(0);
-}
 .slide::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .45); }
 .slide figcaption { position: absolute; left: 24px; bottom: 20px; z-index: 1; margin: 0; text-align: left; }
 .slide b { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; margin: 0; line-height: 1.1; }
@@ -379,51 +349,6 @@ body.pile-page,
 .event { border-radius: 20px; overflow: hidden; background: #17171b; border: 1px solid var(--line); }
 .ev-pic { position: relative; height: 130px; display: flex; align-items: flex-end; justify-content: center; gap: 6px; padding-bottom: 14px; overflow: hidden; }
 .ev-pic img { height: 58px; width: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .6)); }
-.ev-pic.ev-crates { cursor: pointer; }
-.ev-pic.ev-crates:hover { filter: brightness(1.06); }
-.ev-art-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px 4px 8px;
-  background: rgba(14, 14, 18, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.88);
-  font-family: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
-}
-.ev-art-btn svg {
-  width: 12px;
-  height: 12px;
-  stroke: var(--red-hi);
-  flex-shrink: 0;
-}
-.event:hover .ev-art-btn,
-.ev-pic:hover .ev-art-btn,
-.ev-art-btn:hover {
-  background: var(--red);
-  border-color: var(--red-hi);
-  color: #ffffff;
-  transform: translateY(-1px) scale(1.05);
-  box-shadow: 0 6px 16px rgba(216, 38, 44, 0.45);
-}
-.ev-art-btn:active {
-  transform: translateY(0) scale(0.96);
-}
 /* Crate Rain Card & Animation */
 .event.event-crates,
 .event:has(.ev-crates) {
@@ -1230,15 +1155,6 @@ body.pile-page,
   flex-direction: column;
   gap: 3px;
   min-width: 0;
-}
-.map-modal-badge {
-  display: inline-block;
-  align-self: flex-start;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--red-hi);
 }
 .map-modal-title {
   margin: 0;
