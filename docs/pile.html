@@ -47,6 +47,77 @@
   <ul class="sr-only" id="weapon-list"></ul>
 </section>
 
+<!-- MYSTERY BLOCK: tap to roll what's inside -->
+<section class="sect mystery">
+  <div class="sect-head">
+    <h2>MYSTERY BLOCK</h2>
+    <p>Hit one in a match and you get one of these. Tap it to roll.</p>
+  </div>
+  <div class="mystery-wrap">
+    <button class="mystery-block" id="mystery" aria-label="Roll the mystery block">
+      <img src="assets/lucky_block.png" alt="" class="mb-block">
+      <span class="mb-reel" aria-hidden="true"><img id="mb-reel" alt=""></span>
+    </button>
+    <div class="mystery-result" id="mb-result" aria-live="polite">
+      <p class="tag">TAP THE BLOCK</p>
+      <h3>What will you get?</h3>
+      <p class="muted">Power-ups and weapons you can't find anywhere else.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MAPS: swipeable slider -->
+<section class="sect maps-sect">
+  <div class="sect-head">
+    <h2>THE MAPS</h2>
+    <p>50+ maps across six themes, plus random Wild Lands maps. Swipe.</p>
+  </div>
+  <div class="slider">
+    <button class="slide-arrow prev" aria-label="Previous map">&#8249;</button>
+    <div class="slides" id="slides">
+      <figure class="slide" style="--bg:url(assets/bg_islands.jpg)"><figcaption><b>Sky Islands</b><span>Floating islands, waterfalls and long drops.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_pillars.jpg)"><figcaption><b>Temple</b><span>Sandstone ruins and torches at sunset.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_tower.jpg)"><figcaption><b>Castle</b><span>Banners, arches and stone towers.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_ruins.jpg)"><figcaption><b>Wasteland</b><span>Rocks, spikes and a blood-red sun.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_bridge.jpg)"><figcaption><b>City</b><span>Rooftops and bridges under the moon.</span></figcaption></figure>
+      <figure class="slide" style="--bg:url(assets/bg_elevator.jpg)"><figcaption><b>Factory</b><span>Steel, lifts and hazard stripes.</span></figcaption></figure>
+    </div>
+    <button class="slide-arrow next" aria-label="Next map">&#8250;</button>
+  </div>
+  <div class="dots" id="dots"></div>
+</section>
+
+<!-- MAP EVENTS -->
+<section class="sect events-sect">
+  <div class="sect-head">
+    <h2>MAP EVENTS</h2>
+    <p>Any round can roll an event. Sometimes two at once.</p>
+  </div>
+  <div class="events">
+    <article class="event">
+      <div class="ev-pic ev-crates"><img src="assets/crate_wood.png" alt=""><img src="assets/crate_explosive.png" alt=""><img src="assets/crate_metal.png" alt=""></div>
+      <div class="ev-text">
+        <h3>Crate Rain</h3>
+        <p>Crates drop from the sky every few seconds. Climb them, hide behind them, and watch out for TNT: it blows up if it falls again.</p>
+      </div>
+    </article>
+    <article class="event">
+      <div class="ev-pic ev-storm"><i class="bolt" aria-hidden="true"></i></div>
+      <div class="ev-text">
+        <h3>Thunderstorm</h3>
+        <p>Rain and lightning. Now and then a bolt hits a fighter for half their health. The rain puts fire out faster.</p>
+      </div>
+    </article>
+    <article class="event">
+      <div class="ev-pic ev-gift"><img src="assets/gift_0.png" alt=""><img src="assets/gift_3.png" alt=""></div>
+      <div class="ev-text">
+        <h3>Gift Drop</h3>
+        <p>Every weapon falls as a gift box. Open it to find out what you got.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
 <!-- weapon details (the tapped weapon flies in and grows) -->
 <div class="inspect" id="inspect" hidden>
   <div class="inspect-card" role="dialog" aria-modal="true" aria-labelledby="inspect-name">
@@ -73,5 +144,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script src="weapons.js"></script>
 <script src="pile.js"></script>
+<script src="extras.js"></script>
 </body>
 </html>
