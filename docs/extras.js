@@ -30,11 +30,35 @@
   var total = ITEMS.reduce(function (s, it) { return s + it.w; }, 0);
   ITEMS.forEach(function (it) { new Image().src = "assets/" + it.img + ".png"; });
 
+  var stage = document.getElementById("mb-stage");
   var block = document.getElementById("mystery");
   var reel = document.getElementById("mb-reel");
   var track = document.getElementById("mb-track");
   var nameEl = document.getElementById("mb-name") || document.getElementById("mb-result");
   var rolling = false;
+  var resetTimer = null;
+  var RESET_DELAY = 5000; // 5 seconds to reset lucky block back to normal
+
+  function resetToNormal() {
+    if (resetTimer) {
+      clearTimeout(resetTimer);
+      resetTimer = null;
+    }
+    if (stage) stage.classList.remove("rolling", "popped");
+    if (block) {
+      block.classList.remove("rolling", "popped");
+      block.title = "Mystery Block";
+      block.setAttribute("aria-label", "Roll the mystery block");
+    }
+    if (nameEl) {
+      nameEl.classList.remove("rolling", "win");
+      nameEl.textContent = "";
+    }
+    track.style.transition = "none";
+    track.style.transform = "none";
+    track.innerHTML = "";
+    rolling = false;
+  }
 
   function pick() {
     var r = Math.random() * total;
@@ -44,7 +68,16 @@
 
   block.addEventListener("click", function () {
     if (rolling) return;
+    if (resetTimer) {
+      clearTimeout(resetTimer);
+      resetTimer = null;
+    }
+
     rolling = true;
+    if (stage) {
+      stage.classList.remove("popped");
+      stage.classList.add("rolling");
+    }
     block.classList.remove("popped");
     block.classList.add("rolling");
     if (nameEl) {
@@ -56,12 +89,15 @@
     var winIdx = pick();
     var winnerItem = ITEMS[winIdx];
 
-    // Horizontal reel: items slide across from LEFT to RIGHT.
-    // Start view is at START_SLOT (-1900%). Animate to WIN_SLOT (-300%).
-    // As translateX increases towards zero, the track travels to the right!
-    var TOTAL_SLOTS = 22;
-    var WIN_SLOT = 3;
-    var START_SLOT = 19;
+    // Compute dimensions dynamically so slots align with the center block
+    var S = block.clientWidth || 160;
+    var W = reel.clientWidth || 760;
+
+    // Horizontal reel: items show outside to the left and right of the block,
+    // and travel into the center block from left to right.
+    var TOTAL_SLOTS = 28;
+    var WIN_SLOT = 5;
+    var START_SLOT = 24;
     var slots = [];
 
     for (var i = 0; i < TOTAL_SLOTS; i++) {
@@ -80,6 +116,8 @@
     slots.forEach(function (it, idx) {
       var d = document.createElement("div");
       d.className = "mb-slot" + (idx === WIN_SLOT ? " mb-winner-slot" : "");
+      d.style.width = S + "px";
+      d.style.flex = "0 0 " + S + "px";
       var im = document.createElement("img");
       im.src = "assets/" + it.img + ".png";
       im.alt = it.name;
@@ -87,15 +125,19 @@
       track.appendChild(d);
     });
 
+    // Centering formula: slot i's center aligns with center of reel / block
+    var startX = (W - S) / 2 - START_SLOT * S;
+    var winX = (W - S) / 2 - WIN_SLOT * S;
+
     // Reset to start slot without animation
     track.style.transition = "none";
-    track.style.transform = "translateX(-" + (START_SLOT * 100) + "%)";
+    track.style.transform = "translateX(" + startX + "px)";
     void track.offsetWidth; // force reflow
 
     // Glide smoothly from left to right with realistic reel deceleration
     var DURATION = 3.6; // seconds
-    track.style.transition = "transform " + DURATION + "s cubic-bezier(0.15, 0.65, 0.22, 1)";
-    track.style.transform = "translateX(-" + (WIN_SLOT * 100) + "%)";
+    track.style.transition = "transform " + DURATION + "s cubic-bezier(0.12, 0.7, 0.22, 1)";
+    track.style.transform = "translateX(" + winX + "px)";
 
     // Haptic tick detector during deceleration
     var lastTicked = START_SLOT;
@@ -107,8 +149,7 @@
         var m = tr.match(/matrix.*\((.+)\)/);
         if (m) {
           var tx = parseFloat(m[1].split(",")[4]);
-          var w = reel.clientWidth || 1;
-          var curSlot = Math.round(-tx / w);
+          var curSlot = Math.round(((W - S) / 2 - tx) / S);
           if (curSlot !== lastTicked) {
             lastTicked = curSlot;
             if (curSlot <= WIN_SLOT + 5 && navigator.vibrate) {
@@ -121,6 +162,10 @@
 
     setTimeout(function () {
       clearInterval(tickTimer);
+      if (stage) {
+        stage.classList.remove("rolling");
+        stage.classList.add("popped");
+      }
       block.classList.remove("rolling");
       block.classList.add("popped");
       block.title = winnerItem.name;
@@ -134,6 +179,9 @@
         try { navigator.vibrate([30, 40, 50]); } catch (e) {}
       }
       rolling = false;
+
+      // Show the lucky box icon back to normal after 5 seconds
+      resetTimer = setTimeout(resetToNormal, RESET_DELAY);
     }, DURATION * 1000 + 40);
   });
 

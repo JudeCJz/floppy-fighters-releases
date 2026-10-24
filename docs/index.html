@@ -56,12 +56,14 @@
     <p>Hit one in a match and you get one of these. Tap it to roll.</p>
   </div>
   <div class="mystery-wrap">
-    <button class="mystery-block" id="mystery" aria-label="Roll the mystery block">
-      <img src="assets/lucky_block.png" alt="" class="mb-block">
+    <div class="mb-stage" id="mb-stage">
       <div class="mb-reel" id="mb-reel" aria-hidden="true">
         <div class="mb-track" id="mb-track"></div>
       </div>
-    </button>
+      <button class="mystery-block" id="mystery" aria-label="Roll the mystery block">
+        <img src="assets/lucky_block.png" alt="" class="mb-block">
+      </button>
+    </div>
     <div class="mystery-name" id="mb-name" aria-live="polite"></div>
   </div>
 </section>
