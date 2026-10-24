@@ -97,6 +97,12 @@
     }, { rootMargin: "-60px 0px 0px 0px" }).observe(heroBtn);
   }
 
+  // ---------- back-to-top (phone CSS only shows it) ----------
+  var toTop = document.querySelector(".to-top");
+  function updateToTop() { toTop.classList.toggle("show", window.scrollY > 700); }
+  window.addEventListener("scroll", updateToTop, { passive: true });
+  updateToTop();
+
   // ---------- promo art (website/img/) ----------
   // Either drop the whole ChatGPT 2x2 sheet as img/website_art.png (each slot shows its quarter),
   // or crop the quarters into img/<slot>.png. Missing files leave the game art in place.
