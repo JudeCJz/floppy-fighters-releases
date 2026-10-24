@@ -1,11 +1,45 @@
-/* Weapon-pile page (test). Builds on style.css tokens/buttons/footer. */
-.pile-page { background: var(--night); }
+/* Weapon-pile page. Builds on style.css tokens/buttons/footer. */
+body.pile-page,
+.pile-page {
+  background-color: var(--night);
+  position: relative;
+  min-height: 100vh;
+}
 .pile-page .nav .btn { margin-left: auto; }
 .pile-page .brand span { white-space: nowrap; }
 
+/* Custom geometry wallpaper with subtle parallax panning */
+.bg-wallpaper {
+  position: fixed;
+  top: -7%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 115%;
+  min-height: calc(100vh + 100px);
+  z-index: 0;
+  pointer-events: none;
+  background: #0d0d10 url("assets/bg_desktop.jpg") center top / cover no-repeat;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (max-width: 768px) {
+  .bg-wallpaper {
+    background-image: url("assets/bg_mobile.jpg");
+  }
+}
+
+/* Ensure page content stays above fixed wallpaper layer */
+.nav, .intro, .armory-box, .sect, .foot {
+  position: relative;
+  z-index: 2;
+}
+
 .intro {
-  text-align: center; padding: 48px var(--gutter) 36px;
-  background: var(--night);
+  text-align: center;
+  padding: 48px var(--gutter) 36px;
+  background: transparent;
 }
 .intro-logo { width: min(80%, 460px); margin: 0 auto 10px; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .6)); }
 .intro-line { margin: 0 auto 26px; max-width: 520px; color: rgba(255, 255, 255, .78); font-weight: 600; font-size: clamp(15px, 1.6vw, 18px); }

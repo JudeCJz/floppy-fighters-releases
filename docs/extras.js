@@ -1,6 +1,45 @@
-// Page extras: nav Download / back-to-top visibility, mystery block roll, swipeable map slider.
+// Page extras: wallpaper parallax, nav Download / back-to-top visibility, mystery block roll, swipeable map slider.
 (function () {
   "use strict";
+
+  // ---------- background wallpaper parallax panning ----------
+  var bgWallpaper = document.getElementById("bg-wallpaper");
+  if (bgWallpaper) {
+    var bgTicking = false;
+    var prefersReduced = false;
+    try {
+      prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (e) {}
+
+    if (!prefersReduced) {
+      var panRange = 40; // translateY between -40px and +40px
+
+      var updateWallpaperParallax = function () {
+        bgTicking = false;
+        var scrollH = document.documentElement.scrollHeight - window.innerHeight;
+        var ratio = scrollH > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollH)) : 0;
+        // At scroll top (ratio 0): +40px; at scroll bottom (ratio 1): -40px
+        var offset = ((0.5 - ratio) * (panRange * 2)).toFixed(2);
+        bgWallpaper.style.transform = "translate3d(0, " + offset + "px, 0)";
+      };
+
+      window.addEventListener("scroll", function () {
+        if (!bgTicking) {
+          bgTicking = true;
+          requestAnimationFrame(updateWallpaperParallax);
+        }
+      }, { passive: true });
+
+      window.addEventListener("resize", function () {
+        if (!bgTicking) {
+          bgTicking = true;
+          requestAnimationFrame(updateWallpaperParallax);
+        }
+      });
+
+      updateWallpaperParallax();
+    }
+  }
 
   // ---------- nav Download: hidden while the big DOWNLOAD APK button is on screen ----------
   var heroBtn = document.querySelector(".btn-big");
