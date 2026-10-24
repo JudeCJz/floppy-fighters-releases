@@ -1,5 +1,5 @@
 // Weapon pile: every weapon drops into the box (Matter.js physics), tap one to inspect it.
-// Mouse can also drag weapons around; tapping empty space makes a little blast.
+// Mouse can also drag weapons around; tap weapon to inspect.
 (function () {
   "use strict";
   var M = window.Matter, WEAPONS = window.FF_WEAPONS;
@@ -178,46 +178,91 @@
     }
   }
 
-  // ---------- phone shake detection (Android & mobile) ----------
-  var lastAcc = { x: 0, y: 0, z: 0 };
-  var lastShake = 0;
-  var THRESHOLD = 15; // sum of absolute axis deltas (|dx| + |dy| + |dz|)
+  // ---------- earth tilt / gravity & lateral reaction ----------
+  var currentGx = 0;
+  var currentGy = 1;
+  var lastWakeTime = 0;
+  var hasMotion = false;
 
-  function onMotion(e) {
-    var a = e.accelerationIncludingGravity;
-    if (!a) return;
-    if (a.x === null && a.y === null && a.z === null) return;
+  function applyGravity(targetGx, targetGy) {
+    // Clamp gravity to safe stable bounds
+    targetGx = Math.max(-2.0, Math.min(2.0, targetGx));
+    targetGy = Math.max(0.15, Math.min(2.0, targetGy));
 
-    var ax = a.x || 0, ay = a.y || 0, az = a.z || 0;
-    var delta = Math.abs(ax - lastAcc.x) + Math.abs(ay - lastAcc.y) + Math.abs(az - lastAcc.z);
-    var dx = ax - lastAcc.x;
-    var dy = ay - lastAcc.y;
-    lastAcc = { x: ax, y: ay, z: az };
+    // Smooth transition
+    currentGx += (targetGx - currentGx) * 0.35;
+    currentGy += (targetGy - currentGy) * 0.35;
 
-    if (openBody) return; // don't shake while inspecting a weapon
+    if (engine && engine.gravity) {
+      engine.gravity.x = currentGx;
+      engine.gravity.y = currentGy;
+    }
 
-    var now = Date.now();
-    if (delta > THRESHOLD && now - lastShake > 600) {
-      lastShake = now;
+    // Wake bodies when tilting so they immediately slide towards the earth
+    var now = performance.now();
+    if (now - lastWakeTime > 120 && (Math.abs(currentGx) > 0.08 || Math.abs(targetGx - currentGx) > 0.08)) {
+      lastWakeTime = now;
       if (!dropped) drop(true);
       start();
-      var forceX = Math.max(-18, Math.min(18, -dx * 0.9));
-      var forceY = -8 - Math.min(14, delta * 0.4);
-      shake(forceX, forceY);
-
-      var hint = document.getElementById("box-hint");
-      if (hint) hint.style.opacity = 0;
+      bodies.forEach(wake);
     }
   }
 
+  function onMotion(e) {
+    var a = e.accelerationIncludingGravity;
+    if (!a || (a.x === null && a.y === null)) return;
+    hasMotion = true;
+
+    if (openBody) return; // don't shift pile while modal is open
+
+    var rawX = a.x || 0;
+    var rawY = a.y || 0;
+
+    // a.x is along phone width. Tilted right or moved left produces negative reaction force.
+    // So canvas gx is -rawX / 9.8.
+    var gx = -rawX / 9.8 * 1.35;
+    // a.y is along phone height. When upright, rawY ~ 9.8 m/s² (+y downward in canvas).
+    var gy = rawY / 9.8;
+    if (gy < 0.2) gy = 0.35; // keep gentle downward gravity when phone is flat on table
+
+    applyGravity(gx, gy);
+  }
+
+  function onOrientation(e) {
+    if (hasMotion) return; // motion is active and handles linear acceleration
+    if (e.gamma === null && e.beta === null) return;
+    if (openBody) return;
+
+    var gamma = e.gamma || 0; // -90 to +90 (left/right tilt)
+    var beta = e.beta || 90;  // -180 to +180 (front/back tilt)
+
+    var radG = gamma * Math.PI / 180;
+    var gx = Math.sin(radG) * 1.4;
+    var gy = Math.cos(radG);
+    if (beta < 20) gy = 0.35;
+
+    applyGravity(gx, gy);
+  }
+
   function enableMotion() {
-    if (typeof window.DeviceMotionEvent === "undefined") return;
-    if (typeof DeviceMotionEvent.requestPermission === "function") {
-      DeviceMotionEvent.requestPermission().then(function (res) {
-        if (res === "granted") window.addEventListener("devicemotion", onMotion, { passive: true });
-      }).catch(function () {});
-    } else {
-      window.addEventListener("devicemotion", onMotion, { passive: true });
+    if (typeof window.DeviceMotionEvent !== "undefined") {
+      if (typeof DeviceMotionEvent.requestPermission === "function") {
+        DeviceMotionEvent.requestPermission().then(function (res) {
+          if (res === "granted") window.addEventListener("devicemotion", onMotion, { passive: true });
+        }).catch(function () {});
+      } else {
+        window.addEventListener("devicemotion", onMotion, { passive: true });
+      }
+    }
+
+    if (typeof window.DeviceOrientationEvent !== "undefined") {
+      if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission().then(function (res) {
+          if (res === "granted") window.addEventListener("deviceorientation", onOrientation, { passive: true });
+        }).catch(function () {});
+      } else {
+        window.addEventListener("deviceorientation", onOrientation, { passive: true });
+      }
     }
   }
 
@@ -225,7 +270,7 @@
     var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ("ontouchstart" in window);
     if (isMobile) {
       var hintEl = document.getElementById("box-hint");
-      if (hintEl) hintEl.textContent = "Tap an item \u00B7 Shake to toss";
+      if (hintEl) hintEl.textContent = "Tap an item \u00B7 Tilt to slide";
     }
 
     enableMotion();
@@ -258,8 +303,11 @@
       var p = pointIn(e);
       if (Math.hypot(p.x - down.p.x, p.y - down.p.y) < 10 && performance.now() - down.t < 500) {
         var b = bodyAt(down.p);
-        if (b) inspect(b); else blast(down.p);
-        document.getElementById("box-hint").style.opacity = 0;
+        if (b) {
+          inspect(b);
+          var hintEl = document.getElementById("box-hint");
+          if (hintEl) hintEl.style.opacity = 0;
+        }
       }
     }
     down = null;

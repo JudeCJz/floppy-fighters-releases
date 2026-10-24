@@ -73,23 +73,26 @@
 }
 @keyframes mb-shake { 25% { transform: translate(-3px, 1px) rotate(-4deg); } 75% { transform: translate(3px, -1px) rotate(4deg); } }
 
-.mb-stage.rolling .mystery-block::after {
+/* Centered yellow targeting frame for mystery block roll & reveal (sits above the reel on all 4 sides) */
+.mb-stage::after {
   content: "";
   position: absolute;
-  inset: -3px;
-  border: 2px solid #ffc428;
-  border-radius: 20px;
-  box-shadow: none;
-  pointer-events: none;
-}
-.mb-stage.popped .mystery-block::after {
-  content: "";
-  position: absolute;
-  inset: 0;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: clamp(140px, 20vw, 200px);
+  height: 100%;
   border: 3px solid #ffc428;
-  border-radius: 18px;
-  box-shadow: none;
+  border-radius: 20px;
+  box-sizing: border-box;
   pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.mb-stage.rolling::after,
+.mb-stage.popped::after {
+  opacity: 1;
 }
 
 .mb-reel {
@@ -99,20 +102,16 @@
   border-radius: 24px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity .25s, background .25s, border-color .25s;
+  background: transparent;
+  border: none;
+  transition: opacity .25s;
   z-index: 3;
 }
 .mb-stage.rolling .mb-reel,
 .mb-stage.popped .mb-reel {
   opacity: 1;
-}
-.mb-stage.rolling .mb-reel {
-  background: rgba(13, 13, 16, .78);
-  border: 1px solid rgba(255, 255, 255, .1);
-}
-.mb-stage.popped .mb-reel {
   background: transparent;
-  border-color: transparent;
+  border: none;
 }
 .mb-track {
   display: flex;
