@@ -287,6 +287,80 @@
   function stat(label, value, frac) {
     return '<div class="stat"><span>' + label + '</span><i style="--v:' + Math.round(Math.max(0.04, Math.min(1, frac)) * 100) + '%"></i><b>' + value + "</b></div>";
   }
+
+  function wordRating(r) {
+    return r < 0.3 ? "LOW" : (r < 0.6 ? "MEDIUM" : (r < 0.9 ? "HIGH" : "HUGE"));
+  }
+
+  function getWeaponStats(w) {
+    if (w.stats && Array.isArray(w.stats)) {
+      return w.stats;
+    }
+
+    if (w.name === "Flamethrower") {
+      return [
+        ["Damage", "60 / S", 0.6],
+        ["Range", "SHORT", 0.48],
+        ["Fuel", "4 S", 0.5],
+        ["Move Speed", "75%", 0.75]
+      ];
+    }
+
+    var list = [];
+    var pellets = w.pellets || 1;
+    var dmg = typeof w.dmg === "number" ? w.dmg : 0;
+
+    // 1. Damage
+    if (dmg <= 0) {
+      list.push(["Damage", "NONE", 0.04]);
+    } else {
+      var dmgText = dmg + (pellets > 1 ? " x" + pellets : "");
+      if (w.group === "gun" || w.group === "melee") dmgText += " HEAD";
+      list.push(["Damage", dmgText, (dmg * pellets) / 100]);
+    }
+
+    // 2. Speed / Rate
+    var rate = 1 / (w.cd || 0.5);
+    var rateLabel = (w.group === "melee" ? "Swing speed" : "Fire rate");
+    list.push([rateLabel, (rate >= 10 ? Math.round(rate) : rate.toFixed(1)) + " / S", Math.sqrt(rate / 25)]);
+
+    // 3. Ammo
+    if (w.ammo < 0) {
+      list.push(["Ammo", "UNLIMITED", 1.0]);
+    } else {
+      list.push(["Ammo", String(w.ammo), w.ammo / 40]);
+    }
+
+    // 4. Special characteristic (always present, never "-")
+    if (w.name === "Flashbang") {
+      list.push(["Blinds for", "UP TO 3.5 S", 1.0]);
+    } else if (w.name === "Freeze Ray") {
+      list.push(["Freeze", "2.2 S", 2.2 / 3.0]);
+    } else if (w.name === "Gas Grenade") {
+      list.push(["Gas Cloud", "6.0 S", 0.8]);
+    } else if (w.radius) {
+      list.push(["Blast", wordRating(w.radius / 280), w.radius / 280]);
+    } else if (w.name === "Spear") {
+      list.push(["Reach", "HUGE", 1.0]);
+    } else if (w.name === "Sword") {
+      list.push(["Reach", "HIGH", 0.82]);
+    } else if (w.name === "Bat") {
+      list.push(["Reach", "MEDIUM", 0.7]);
+    } else if (w.name === "Minigun") {
+      list.push(["Move Speed", "55%", 0.55]);
+    } else if (w.name === "Rocket Launcher") {
+      list.push(["Move Speed", "80%", 0.8]);
+    } else if (w.name === "Nuke Launcher") {
+      list.push(["Move Speed", "60%", 0.6]);
+    } else if (w.kb) {
+      list.push(["Knockback", wordRating(w.kb / 1500), w.kb / 1500]);
+    } else {
+      list.push(["Handling", "FAST", 0.75]);
+    }
+
+    return list;
+  }
+
   function fillCard(w) {
     var groups = { gun: "Gun", boom: "Explosive", melee: "Melee & thrown", power: "Power-up" };
     var tagHtml = (w.tag || groups[w.group] || "Power-up");
@@ -294,20 +368,12 @@
     document.getElementById("inspect-tag").innerHTML = tagHtml;
     document.getElementById("inspect-name").textContent = w.name;
     document.getElementById("inspect-info").textContent = w.info;
-    if (w.stats && Array.isArray(w.stats)) {
-      var html = "";
-      w.stats.forEach(function (st) {
-        html += stat(st[0], st[1], st[2]);
-      });
-      document.getElementById("inspect-stats").innerHTML = html;
-      return;
-    }
-    var rate = 1 / w.cd;
-    var html = stat("Damage", w.dmg ? w.dmg + (w.pellets ? " x" + w.pellets : "") : "-", (w.dmg * (w.pellets || 1)) / MAX.dmg);
-    html += stat("Fire rate", (rate >= 10 ? Math.round(rate) : rate.toFixed(1)) + "/s", rate / MAX.rate);
-    html += stat("Knockback", w.kb ? Math.round(w.kb / 10) : "-", w.kb / MAX.kb);
-    if (w.radius) html += stat("Blast", Math.round(w.radius / 10), w.radius / MAX.radius);
-    html += '<div class="stat"><span>Ammo</span><i style="--v:0%;visibility:hidden"></i><b>' + (w.ammo < 0 ? "&infin;" : w.ammo) + "</b></div>";
+
+    var statsList = getWeaponStats(w);
+    var html = "";
+    statsList.forEach(function (st) {
+      html += stat(st[0], st[1], st[2]);
+    });
     document.getElementById("inspect-stats").innerHTML = html;
   }
 
