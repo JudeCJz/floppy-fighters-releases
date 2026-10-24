@@ -422,10 +422,8 @@
     var giftBoxes = document.getElementById("ev-gift-boxes");
     var giftBox0 = document.getElementById("ev-gift-box-0");
     var giftBox1 = document.getElementById("ev-gift-box-1");
-    var giftBurst = document.getElementById("ev-gift-burst");
     var giftReveal = document.getElementById("ev-gift-reveal");
     var giftWeaponImg = document.getElementById("ev-gift-weapon-img");
-    var giftWeaponName = document.getElementById("ev-gift-name");
 
     var giftState = "idle"; // "idle" | "popping" | "revealed"
     var giftResetTimer = null;
@@ -486,21 +484,6 @@
       return pool[0];
     }
 
-    function createBurstSparks() {
-      if (!giftBurst) return;
-      giftBurst.innerHTML = "";
-      var flash = document.createElement("div");
-      flash.className = "ev-gift-flash";
-      giftBurst.appendChild(flash);
-      // In-game 8 impact burst sparks (TAU * k / 8.0)
-      for (var k = 0; k < 8; k++) {
-        var spark = document.createElement("div");
-        spark.className = "ev-gift-spark";
-        spark.style.setProperty("--angle", (k * 45) + "deg");
-        giftBurst.appendChild(spark);
-      }
-    }
-
     function resetGiftCard() {
       if (giftResetTimer) {
         clearTimeout(giftResetTimer);
@@ -508,7 +491,6 @@
       }
       giftState = "idle";
       giftCard.classList.remove("popping", "revealed");
-      if (giftBurst) giftBurst.innerHTML = "";
       if (giftBox0) giftBox0.classList.remove("tapped");
       if (giftBox1) giftBox1.classList.remove("tapped");
       randomizeGiftSprites();
@@ -532,11 +514,7 @@
         giftWeaponImg.src = "assets/" + weapon.png + ".png";
         giftWeaponImg.alt = weapon.name;
       }
-      if (giftWeaponName) {
-        giftWeaponName.textContent = weapon.name;
-      }
 
-      createBurstSparks();
       giftCard.classList.add("popping");
 
       if (navigator.vibrate) {
@@ -552,7 +530,7 @@
         giftResetTimer = setTimeout(function () {
           resetGiftCard();
         }, GIFT_DISPLAY_DURATION);
-      }, 180);
+      }, 160);
     }
 
     function handleCardTap(e) {
@@ -611,5 +589,43 @@
 
     lightningEl.addEventListener("animationiteration", randomizeLightningPosition);
     randomizeLightningPosition();
+
+    // Interactive tap: clicking the Thunderstorm card summons a lightning strike with authentic thunder audio
+    var stormPic = document.querySelector(".ev-storm");
+    var stormArticle = stormPic ? stormPic.closest(".event") : null;
+    var thunderAudio = new Audio("assets/sfx_thunder.wav");
+    thunderAudio.volume = 0.6;
+
+    var triggerManualStrike = function () {
+      randomizeLightningPosition();
+      try {
+        thunderAudio.currentTime = 0;
+        thunderAudio.play();
+      } catch (e) {}
+      lightningEl.classList.remove("manual-strike");
+      void lightningEl.offsetWidth;
+      lightningEl.classList.add("manual-strike");
+      if (navigator.vibrate) {
+        try { navigator.vibrate([15, 30, 60]); } catch (e) {}
+      }
+    };
+
+    lightningEl.addEventListener("animationend", function () {
+      lightningEl.classList.remove("manual-strike");
+    });
+
+    if (stormArticle) {
+      stormArticle.style.cursor = "pointer";
+      stormArticle.setAttribute("tabindex", "0");
+      stormArticle.setAttribute("role", "button");
+      stormArticle.setAttribute("aria-label", "Thunderstorm - tap to summon lightning strike");
+      stormArticle.addEventListener("click", triggerManualStrike);
+      stormArticle.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          triggerManualStrike();
+        }
+      });
+    }
   }
 })();
