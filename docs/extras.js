@@ -32,6 +32,7 @@
 
   var block = document.getElementById("mystery");
   var reel = document.getElementById("mb-reel");
+  var track = document.getElementById("mb-track");
   var nameEl = document.getElementById("mb-name") || document.getElementById("mb-result");
   var rolling = false;
 
@@ -40,7 +41,6 @@
     for (var i = 0; i < ITEMS.length; i++) { r -= ITEMS[i].w; if (r < 0) return i; }
     return 0;
   }
-  function showFrame(i) { reel.src = "assets/" + ITEMS[i].img + ".png"; }
 
   block.addEventListener("click", function () {
     if (rolling) return;
@@ -52,36 +52,89 @@
       nameEl.classList.add("rolling");
       nameEl.textContent = "...";
     }
-    var win = pick();
-    // Dramatic, suspenseful deceleration (3.6s total):
-    // starts fast, visibly brakes, then clicks through the final items one-by-one
-    var delays = [55, 55, 60, 65, 70, 80, 95, 115, 140, 175, 220, 280, 360, 470, 620, 800];
-    var L = ITEMS.length;
-    var frames = delays.map(function (_, n) { return (((win - (delays.length - 1 - n)) % L) + L) % L; });
-    var n = 0;
-    (function next() {
-      showFrame(frames[n]);
-      if (n >= delays.length - 5 && navigator.vibrate) {
-        try { navigator.vibrate(10); } catch (err) {}
+
+    var winIdx = pick();
+    var winnerItem = ITEMS[winIdx];
+
+    // Horizontal reel: items slide across from LEFT to RIGHT.
+    // Start view is at START_SLOT (-1900%). Animate to WIN_SLOT (-300%).
+    // As translateX increases towards zero, the track travels to the right!
+    var TOTAL_SLOTS = 22;
+    var WIN_SLOT = 3;
+    var START_SLOT = 19;
+    var slots = [];
+
+    for (var i = 0; i < TOTAL_SLOTS; i++) {
+      if (i === WIN_SLOT) {
+        slots.push(winnerItem);
+      } else {
+        var rIdx;
+        do {
+          rIdx = Math.floor(Math.random() * ITEMS.length);
+        } while (slots.length > 0 && ITEMS[rIdx] === slots[slots.length - 1]);
+        slots.push(ITEMS[rIdx]);
       }
-      if (n < delays.length - 1) { setTimeout(next, delays[n++]); return; }
-      setTimeout(function () {
-        var it = ITEMS[win];
-        block.classList.remove("rolling");
-        block.classList.add("popped");
-        block.title = it.name;
-        block.setAttribute("aria-label", it.name + " - tap to roll again");
-        if (nameEl) {
-          nameEl.classList.remove("rolling");
-          nameEl.classList.add("win");
-          nameEl.textContent = it.name;
+    }
+
+    track.innerHTML = "";
+    slots.forEach(function (it, idx) {
+      var d = document.createElement("div");
+      d.className = "mb-slot" + (idx === WIN_SLOT ? " mb-winner-slot" : "");
+      var im = document.createElement("img");
+      im.src = "assets/" + it.img + ".png";
+      im.alt = it.name;
+      d.appendChild(im);
+      track.appendChild(d);
+    });
+
+    // Reset to start slot without animation
+    track.style.transition = "none";
+    track.style.transform = "translateX(-" + (START_SLOT * 100) + "%)";
+    void track.offsetWidth; // force reflow
+
+    // Glide smoothly from left to right with realistic reel deceleration
+    var DURATION = 3.6; // seconds
+    track.style.transition = "transform " + DURATION + "s cubic-bezier(0.15, 0.65, 0.22, 1)";
+    track.style.transform = "translateX(-" + (WIN_SLOT * 100) + "%)";
+
+    // Haptic tick detector during deceleration
+    var lastTicked = START_SLOT;
+    var tickTimer = setInterval(function () {
+      if (!rolling) { clearInterval(tickTimer); return; }
+      var st = window.getComputedStyle(track);
+      var tr = st.transform || st.webkitTransform;
+      if (tr && tr !== "none") {
+        var m = tr.match(/matrix.*\((.+)\)/);
+        if (m) {
+          var tx = parseFloat(m[1].split(",")[4]);
+          var w = reel.clientWidth || 1;
+          var curSlot = Math.round(-tx / w);
+          if (curSlot !== lastTicked) {
+            lastTicked = curSlot;
+            if (curSlot <= WIN_SLOT + 5 && navigator.vibrate) {
+              try { navigator.vibrate(10); } catch (e) {}
+            }
+          }
         }
-        if (navigator.vibrate) {
-          try { navigator.vibrate([25, 35, 45]); } catch (err) {}
-        }
-        rolling = false;
-      }, delays[n]);
-    })();
+      }
+    }, 40);
+
+    setTimeout(function () {
+      clearInterval(tickTimer);
+      block.classList.remove("rolling");
+      block.classList.add("popped");
+      block.title = winnerItem.name;
+      block.setAttribute("aria-label", winnerItem.name + " - tap to roll again");
+      if (nameEl) {
+        nameEl.classList.remove("rolling");
+        nameEl.classList.add("win");
+        nameEl.textContent = winnerItem.name;
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate([30, 40, 50]); } catch (e) {}
+      }
+      rolling = false;
+    }, DURATION * 1000 + 40);
   });
 
   // ---------- map slider (infinite loop) ----------

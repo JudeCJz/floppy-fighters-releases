@@ -55,16 +55,45 @@
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .55)); -webkit-tap-highlight-color: transparent;
   margin: 0 auto;
 }
-.mystery-block .mb-block { width: 100%; height: 100%; object-fit: contain; transition: transform .15s; }
+.mystery-block .mb-block { width: 100%; height: 100%; object-fit: contain; transition: transform .15s, opacity .25s; }
 .mystery-block:hover .mb-block { transform: translateY(-4px) rotate(-3deg); }
 .mystery-block:active .mb-block { transform: scale(.94); }
-.mystery-block.rolling .mb-block { animation: mb-shake .12s linear infinite; }
+.mystery-block.rolling .mb-block { animation: mb-shake .12s linear infinite; opacity: 0.15; }
 .mystery-block.popped .mb-block { opacity: 0; transform: scale(.6); transition: opacity .2s, transform .2s; }
 @keyframes mb-shake { 25% { transform: translate(-3px, 1px) rotate(-4deg); } 75% { transform: translate(3px, -1px) rotate(4deg); } }
-.mb-reel { position: absolute; inset: 8%; display: grid; place-items: center; pointer-events: none; }
-.mb-reel img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transform: scale(.4) translateY(30px); transition: opacity .2s, transform .35s cubic-bezier(.2, 1.4, .4, 1); }
-.mystery-block.popped .mb-reel img { opacity: 1; transform: none; }
-.mystery-block.rolling .mb-reel img { opacity: .95; transform: translateY(-58%) scale(.55); transition: none; }
+
+.mb-reel {
+  position: absolute; inset: 4%; display: flex; align-items: center;
+  overflow: hidden; border-radius: 18px; pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+}
+.mystery-block.rolling .mb-reel {
+  opacity: 1;
+  background: rgba(13, 13, 16, .88);
+  border: 2px solid rgba(255, 196, 40, .4);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, .85);
+}
+.mystery-block.popped .mb-reel {
+  opacity: 1;
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+.mb-track {
+  display: flex; height: 100%; width: 100%; will-change: transform;
+}
+.mb-slot {
+  flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+}
+.mb-slot img {
+  max-width: 76%; max-height: 76%; object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .7));
+  transition: transform .35s cubic-bezier(.2, 1.4, .4, 1), filter .35s;
+}
+.mystery-block.popped .mb-slot.mb-winner-slot img {
+  transform: scale(1.18);
+  filter: drop-shadow(0 10px 24px rgba(240, 72, 77, .75));
+}
 .mystery-name {
   font-size: clamp(22px, 3vw, 30px);
   font-weight: 900;
