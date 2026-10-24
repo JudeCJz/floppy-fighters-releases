@@ -58,6 +58,9 @@ h1, h2, h3 { font-weight: 900; line-height: 1.1; margin: 0; }
 .nav nav { display: flex; gap: 22px; margin-left: auto; }
 .nav nav a { text-decoration: none; font-weight: 700; font-size: 14px; color: rgba(255, 255, 255, .7); }
 .nav nav a:hover { color: #fff; }
+/* nav Download only shows once the big hero button has scrolled away (main.js) */
+.nav-dl { transition: opacity .2s, transform .2s, visibility .2s; }
+.nav-dl.away { opacity: 0; visibility: hidden; transform: translateY(-6px); pointer-events: none; }
 
 /* ---------- hero (the game's menu look) ---------- */
 .hero {

@@ -56,6 +56,16 @@
     });
   });
 
+  // ---------- nav Download: hidden while the big hero button is on screen ----------
+  var heroBtn = document.querySelector(".btn-big");
+  var navBtn = document.querySelector(".nav-dl");
+  if (heroBtn && navBtn && "IntersectionObserver" in window) {
+    navBtn.classList.add("away");
+    new IntersectionObserver(function (entries) {
+      navBtn.classList.toggle("away", entries[0].isIntersecting);
+    }, { rootMargin: "-60px 0px 0px 0px" }).observe(heroBtn);
+  }
+
   // ---------- promo art (website/img/) ----------
   // Either drop the whole ChatGPT 2x2 sheet as img/website_art.png (each slot shows its quarter),
   // or crop the quarters into img/<slot>.png. Missing files leave the game art in place.
