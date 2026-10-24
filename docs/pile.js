@@ -179,56 +179,45 @@
   }
 
   // ---------- phone shake detection (Android & mobile) ----------
+  var lastAcc = { x: 0, y: 0, z: 0 };
   var lastShake = 0;
-  var lastGx = null, lastGy = null, lastGz = null;
+  var THRESHOLD = 15; // sum of absolute axis deltas (|dx| + |dy| + |dz|)
 
   function onMotion(e) {
+    var a = e.accelerationIncludingGravity;
+    if (!a) return;
+    if (a.x === null && a.y === null && a.z === null) return;
+
+    var ax = a.x || 0, ay = a.y || 0, az = a.z || 0;
+    var delta = Math.abs(ax - lastAcc.x) + Math.abs(ay - lastAcc.y) + Math.abs(az - lastAcc.z);
+    var dx = ax - lastAcc.x;
+    var dy = ay - lastAcc.y;
+    lastAcc = { x: ax, y: ay, z: az };
+
     if (openBody) return; // don't shake while inspecting a weapon
-    var r = box.getBoundingClientRect();
-    if (r.bottom <= 0 || r.top >= window.innerHeight) return;
 
-    var now = performance.now();
-    var ax = 0, ay = 0, az = 0, mag = 0;
-    var g = e.accelerationIncludingGravity;
-    var acc = e.acceleration;
-
-    if (g && (g.x !== null || g.y !== null || g.z !== null)) {
-      var gx = g.x || 0, gy = g.y || 0, gz = g.z || 0;
-      if (lastGx !== null) {
-        var dx = gx - lastGx;
-        var dy = gy - lastGy;
-        var dz = gz - lastGz;
-        mag = Math.hypot(dx, dy, dz);
-        ax = dx;
-        ay = dy;
-        az = dz;
-      }
-      lastGx = gx;
-      lastGy = gy;
-      lastGz = gz;
-    }
-
-    if (acc && (acc.x !== null || acc.y !== null || acc.z !== null)) {
-      var lx = acc.x || 0, ly = acc.y || 0, lz = acc.z || 0;
-      var lMag = Math.hypot(lx, ly, lz);
-      if (lMag > mag) {
-        mag = lMag;
-        ax = lx;
-        ay = ly;
-        az = lz;
-      }
-    }
-
-    if (mag > 10 && now - lastShake > 240) {
+    var now = Date.now();
+    if (delta > THRESHOLD && now - lastShake > 600) {
       lastShake = now;
       if (!dropped) drop(true);
       start();
-      var forceX = Math.max(-18, Math.min(18, -ax * 0.85));
-      var forceY = -8 - Math.min(14, mag * 0.5);
+      var forceX = Math.max(-18, Math.min(18, -dx * 0.9));
+      var forceY = -8 - Math.min(14, delta * 0.4);
       shake(forceX, forceY);
 
       var hint = document.getElementById("box-hint");
       if (hint) hint.style.opacity = 0;
+    }
+  }
+
+  function enableMotion() {
+    if (typeof window.DeviceMotionEvent === "undefined") return;
+    if (typeof DeviceMotionEvent.requestPermission === "function") {
+      DeviceMotionEvent.requestPermission().then(function (res) {
+        if (res === "granted") window.addEventListener("devicemotion", onMotion, { passive: true });
+      }).catch(function () {});
+    } else {
+      window.addEventListener("devicemotion", onMotion, { passive: true });
     }
   }
 
@@ -239,18 +228,8 @@
       if (hintEl) hintEl.textContent = "Tap a weapon \u00B7 Shake to toss";
     }
 
-    if (typeof window.DeviceMotionEvent === "undefined") return;
-    if (typeof DeviceMotionEvent.requestPermission === "function") {
-      var reqOnTouch = function () {
-        DeviceMotionEvent.requestPermission().then(function (state) {
-          if (state === "granted") window.addEventListener("devicemotion", onMotion, { passive: true });
-        }).catch(function () {});
-        window.removeEventListener("pointerdown", reqOnTouch);
-      };
-      window.addEventListener("pointerdown", reqOnTouch, { once: true });
-    } else {
-      window.addEventListener("devicemotion", onMotion, { passive: true });
-    }
+    enableMotion();
+    window.addEventListener("pointerdown", enableMotion, { once: true });
   }
   initMotion();
 
@@ -292,6 +271,7 @@
   var shakeBtn = document.getElementById("shake");
   if (shakeBtn) {
     shakeBtn.addEventListener("click", function () {
+      enableMotion();
       if (!dropped) drop(true);
       start();
       shake();
