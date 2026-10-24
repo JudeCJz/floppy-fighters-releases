@@ -1,0 +1,95 @@
+/* Weapon-pile page (test). Builds on style.css tokens/buttons/footer. */
+.pile-page { background: var(--night); }
+.pile-page .nav .btn { margin-left: auto; }
+
+.intro {
+  text-align: center; padding: 48px var(--gutter) 36px;
+  background: radial-gradient(ellipse at 50% 0, rgba(216, 38, 44, .22), transparent 65%);
+}
+.intro-logo { width: min(80%, 460px); margin: 0 auto 10px; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .6)); }
+.intro-line { margin: 0 auto 26px; max-width: 520px; color: rgba(255, 255, 255, .78); font-weight: 600; font-size: clamp(15px, 1.6vw, 18px); }
+.intro-meta { margin: 18px 0 0; font-size: 14px; font-weight: 700; color: var(--muted); }
+.intro-meta b { color: var(--red-hi); }
+
+.armory-box { max-width: 1160px; margin: 0 auto; padding: 8px var(--gutter) 64px; }
+.box-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.box-head h2 { font-size: clamp(24px, 3vw, 34px); letter-spacing: .02em; }
+.box-head h2::before { content: ""; display: inline-block; width: 40px; height: 5px; border-radius: 3px; background: var(--red); vertical-align: middle; margin-right: 12px; }
+.box-head p { margin: 0; color: var(--muted); font-weight: 700; }
+
+/* the box: open-top steel crate */
+.box {
+  position: relative; height: min(54vh, 470px); min-height: 340px;
+  border: 10px solid #26262c; border-top: 0; border-radius: 0 0 22px 22px;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(216, 38, 44, .16), transparent 60%),
+    linear-gradient(#141418, #0b0b0e);
+  box-shadow: inset 0 -18px 40px rgba(0, 0, 0, .55), 0 18px 40px rgba(0, 0, 0, .45);
+}
+.box::before, .box::after { /* rim posts */
+  content: ""; position: absolute; top: 0; width: 10px; height: 26px; background: var(--red);
+}
+.box::before { left: -10px; } .box::after { right: -10px; }
+#pile { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; cursor: default; }
+.box-hint {
+  position: absolute; left: 0; right: 0; top: 18px; margin: 0; text-align: center; pointer-events: none;
+  font-weight: 900; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .28);
+  transition: opacity .4s;
+}
+.box-tools { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.box-tools .btn { cursor: pointer; font-size: 14px; padding: 11px 20px; background: none; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* details */
+.inspect {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+  background: rgba(5, 5, 8, .72); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .25s;
+}
+.inspect.open { opacity: 1; }
+.inspect[hidden] { display: none; }
+.inspect-card {
+  position: relative; width: min(100%, 460px); max-height: calc(100vh - 32px); overflow: auto;
+  padding: 26px 26px 24px; border-radius: 22px;
+  background: linear-gradient(180deg, #1f1f25, #141418); border: 1px solid rgba(216, 38, 44, .45);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+}
+.inspect-close {
+  position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border-radius: 50%;
+  border: 0; background: rgba(255, 255, 255, .06); color: #fff; font-size: 26px; line-height: 1; cursor: pointer;
+}
+.inspect-close:hover { background: var(--red); }
+.inspect-pic {
+  height: 220px; margin: 6px 0 14px; border-radius: 16px;
+  background: radial-gradient(circle at 50% 55%, rgba(216, 38, 44, .35), transparent 68%), #0c0c0f;
+}
+.inspect-tag { margin: 0 0 4px; font-weight: 800; font-size: 12px; letter-spacing: .12em; color: var(--red-hi); text-transform: uppercase; }
+.inspect-tag em { font-style: normal; color: #ffcf3a; margin-left: 8px; }
+.inspect-card h3 { font-size: 28px; margin-bottom: 8px; }
+.inspect-info { margin: 0 0 18px; color: rgba(255, 255, 255, .78); font-size: 15px; }
+.stat { display: grid; grid-template-columns: 96px 1fr 58px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 13px; }
+.stat span { font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
+.stat b { text-align: right; font-weight: 900; }
+.stat i { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.stat i::after {
+  content: ""; display: block; height: 100%; width: var(--v); border-radius: 4px;
+  background: linear-gradient(90deg, var(--red), var(--red-hi));
+  transform-origin: left; animation: grow .6s .15s ease-out both;
+}
+@keyframes grow { from { transform: scaleX(0); } }
+
+/* the weapon image that flies from the pile into the card */
+.flyer {
+  position: fixed; z-index: 60; left: 0; top: 0; pointer-events: none; object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6));
+  transition: transform .42s cubic-bezier(.2, .9, .25, 1.15), width .42s cubic-bezier(.2, .9, .25, 1.15), height .42s cubic-bezier(.2, .9, .25, 1.15);
+}
+.flyer[hidden] { display: none; }
+
+@media (max-width: 720px) {
+  .box { height: 60vh; min-height: 400px; max-height: 560px; border-width: 8px; }
+  .box::before { left: -8px; width: 8px; } .box::after { right: -8px; width: 8px; }
+  .inspect-pic { height: 170px; }
+  .stat { grid-template-columns: 84px 1fr 50px; }
+}
