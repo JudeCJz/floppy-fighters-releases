@@ -119,12 +119,6 @@ body.pile-page,
 .box-head p, .sect-head p { margin: 0; color: var(--muted); font-weight: 700; }
 .sect-head { margin-bottom: 20px; }
 
-/* ---------- what's new (from the GitHub releases) ---------- */
-.news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 860px; }
-.news-list li { position: relative; padding-left: 22px; color: rgba(255, 255, 255, .86); font-weight: 600; font-size: clamp(14px, 1.5vw, 16px); line-height: 1.45; }
-.news-list li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
-.news-list li b { color: #fff; }
-
 /* ---------- mystery block ---------- */
 .mystery-wrap {
   display: flex;

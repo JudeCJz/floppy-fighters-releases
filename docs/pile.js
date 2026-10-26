@@ -547,44 +547,12 @@
     }, 200);
   });
 
-  // ---------- WHAT'S NEW: the newest release notes' points (no test flags, credits or odds) ----------
-  function showNews(rels) {
-    var box = document.getElementById("news");
-    var ul = document.getElementById("news-list");
-    if (!box || !ul) return;
-    var seen = {};
-    var items = [];
-    rels.slice(0, 5).forEach(function (r) {
-      (r.body || "").split(/\r?\n/).forEach(function (line) {
-        var t = line.replace(/^\s*[-*]\s+/, "").replace(/`/g, "").trim();
-        if (!/^\s*[-*]\s+/.test(line) || !t) return;
-        if (/changelog by|test flag|%|chance|odds|rate\b/i.test(t)) return;  // (never odds on the site)
-        if (t.length > 170) t = t.slice(0, 167).replace(/\s+\S*$/, "") + "...";
-        if (seen[t] || items.length >= 8) return;
-        seen[t] = true;
-        items.push(t);
-      });
-    });
-    if (!items.length) return;
-    ul.innerHTML = "";
-    items.forEach(function (t) {
-      var li = document.createElement("li");
-      li.textContent = t;
-      ul.appendChild(li);
-    });
-    var v = box.querySelector(".js-news-ver");
-    if (v) v.textContent = rels[0].tag_name;
-    box.hidden = false;
-  }
-
   // ---------- latest release for the Download buttons ----------
   fetch("https://api.github.com/repos/" + REPO + "/releases?per_page=5")
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (list) {
-      var rels = list.filter(function (r) { return !r.draft && !r.prerelease; });
-      var rel = rels[0];
+      var rel = list.filter(function (r) { return !r.draft && !r.prerelease; })[0];
       if (!rel) return;
-      showNews(rels);
       var apk = (rel.assets || []).filter(function (a) { return /\.apk$/i.test(a.name); })[0];
       document.querySelectorAll(".js-ver").forEach(function (v) { v.textContent = rel.tag_name; });
       if (!apk) return;
