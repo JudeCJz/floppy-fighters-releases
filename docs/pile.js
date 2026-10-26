@@ -3,7 +3,7 @@
 (function () {
   "use strict";
   var M = window.Matter, WEAPONS = window.FF_WEAPONS;
-  var REPO = "JudeCJz/floppy-fighters-releases";
+  var REPO = "JudeCJz/stickshot-releases";
   var STEP = 1000 / 60;      // physics step (ms)
   var WALL = 400;            // wall thickness, keeps fast weapons in
   var FILL = 0.48;          // share of the box the pile's sprites cover
@@ -61,7 +61,7 @@
   function dims(w, s) {
     var im = imgs[w.name];
     var a = im.naturalWidth ? im.naturalHeight / im.naturalWidth : 1;
-    var L = Math.max(w.size, 34) * s;
+    var L = Math.max(w.size, 24) * s;  // true to the game's sizes: a mine stays smaller than a sniper
     return a <= 1 ? { w: L, h: L * a } : { w: L / a, h: L };
   }
 
@@ -308,7 +308,7 @@
     }
     if (w.name === "Flamethrower") {
       return [
-        ["Damage", "60 / S", 0.60],
+        ["Damage", "90 / S", 0.90],
         ["Range", "290 PX", 0.58],
         ["Fuel", "5.0 S", 0.62],
         ["Move Speed", "75%", 0.75]
@@ -414,7 +414,7 @@
   function fillCard(w) {
     var groups = { gun: "Gun", boom: "Explosive", melee: "Melee & thrown", power: "Power-up" };
     var tagHtml = (w.tag || groups[w.group] || "Power-up");
-    if (w.lucky) tagHtml += "<em>" + (w.luckyTag || "Lucky block only") + "</em>";
+    if (w.lucky) tagHtml += "<em>" + (w.luckyTag || "Mystery block only") + "</em>";
     document.getElementById("inspect-tag").innerHTML = tagHtml;
     document.getElementById("inspect-name").textContent = w.name;
     document.getElementById("inspect-info").textContent = w.info;
@@ -547,12 +547,44 @@
     }, 200);
   });
 
+  // ---------- WHAT'S NEW: the newest release notes' points (no test flags, credits or odds) ----------
+  function showNews(rels) {
+    var box = document.getElementById("news");
+    var ul = document.getElementById("news-list");
+    if (!box || !ul) return;
+    var seen = {};
+    var items = [];
+    rels.slice(0, 5).forEach(function (r) {
+      (r.body || "").split(/\r?\n/).forEach(function (line) {
+        var t = line.replace(/^\s*[-*]\s+/, "").replace(/`/g, "").trim();
+        if (!/^\s*[-*]\s+/.test(line) || !t) return;
+        if (/changelog by|test flag|%|chance|odds|rate\b/i.test(t)) return;  // (never odds on the site)
+        if (t.length > 170) t = t.slice(0, 167).replace(/\s+\S*$/, "") + "...";
+        if (seen[t] || items.length >= 8) return;
+        seen[t] = true;
+        items.push(t);
+      });
+    });
+    if (!items.length) return;
+    ul.innerHTML = "";
+    items.forEach(function (t) {
+      var li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+    var v = box.querySelector(".js-news-ver");
+    if (v) v.textContent = rels[0].tag_name;
+    box.hidden = false;
+  }
+
   // ---------- latest release for the Download buttons ----------
   fetch("https://api.github.com/repos/" + REPO + "/releases?per_page=5")
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (list) {
-      var rel = list.filter(function (r) { return !r.draft && !r.prerelease; })[0];
+      var rels = list.filter(function (r) { return !r.draft && !r.prerelease; });
+      var rel = rels[0];
       if (!rel) return;
+      showNews(rels);
       var apk = (rel.assets || []).filter(function (a) { return /\.apk$/i.test(a.name); })[0];
       document.querySelectorAll(".js-ver").forEach(function (v) { v.textContent = rel.tag_name; });
       if (!apk) return;

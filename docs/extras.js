@@ -80,7 +80,7 @@
   var revealDesc = document.getElementById("mb-reveal-desc");
   var rolling = false;
   var resetTimer = null;
-  var RESET_DELAY = 5000; // 5 seconds to reset lucky block back to normal
+  var RESET_DELAY = 5000; // 5 seconds to reset mystery block back to normal
 
   function getStage() {
     return document.getElementById("mb-stage") || (block ? block.parentElement : null);
@@ -252,7 +252,7 @@
       }
       rolling = false;
 
-      // Show the lucky box icon back to normal after 5 seconds
+      // Show the mystery block icon back to normal after 5 seconds
       resetTimer = setTimeout(resetToNormal, RESET_DELAY);
     }, DURATION * 1000 + 40);
   });
@@ -550,6 +550,10 @@
       if (giftWeaponImg) {
         giftWeaponImg.src = "assets/" + weapon.png + ".png";
         giftWeaponImg.alt = weapon.name;
+        // True to size, like the game: the picture's box scales with the weapon's length.
+        var k = Math.max(0.3, Math.min(1, (weapon.size || 60) / 96));
+        giftWeaponImg.style.maxWidth = Math.round(140 * k) + "px";
+        giftWeaponImg.style.maxHeight = Math.round(64 * k) + "px";
       }
 
       giftCard.classList.add("popping");

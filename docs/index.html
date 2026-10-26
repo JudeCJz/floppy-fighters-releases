@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Floppy Fighters</title>
-<meta name="description" content="Floppy Fighters: a free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
+<title>Stickshot</title>
+<meta name="description" content="Stickshot: a free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
 <meta name="theme-color" content="#1b1b1f">
-<meta property="og:title" content="Floppy Fighters">
+<meta property="og:title" content="Stickshot">
 <meta property="og:description" content="Free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
 <meta property="og:image" content="assets/app_icon.png">
 <link rel="icon" href="assets/app_icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=10">
-<link rel="stylesheet" href="pile.css?v=21">
+<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="pile.css?v=25">
 </head>
 <body class="pile-page">
 
@@ -22,18 +22,24 @@
 <div class="flashbang-screen" id="flashbang-screen" aria-hidden="true"></div>
 
 <header class="nav">
-  <a class="brand" href="#top"><img src="assets/app_icon.png" alt=""><span>FLOPPY FIGHTERS</span></a>
-  <a class="btn btn-red btn-sm js-download nav-dl" href="https://github.com/JudeCJz/floppy-fighters-releases/releases/latest">Download</a>
+  <a class="brand" href="#top"><img src="assets/app_icon.png" alt=""><span>STICKSHOT</span></a>
+  <a class="btn btn-red btn-sm js-download nav-dl" href="https://github.com/JudeCJz/stickshot-releases/releases/latest">Download</a>
 </header>
 
 <section class="intro" id="top">
-  <img class="intro-logo" src="assets/logo_title.png" alt="Floppy Fighters">
-  <p class="intro-line">Ragdoll stick-figure brawler for Android. Up to 16 players on the same Wi-Fi.</p>
-  <a class="btn btn-red btn-big js-download" href="https://github.com/JudeCJz/floppy-fighters-releases/releases/latest">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span>DOWNLOAD APK</span>
-  </a>
-  <p class="intro-meta"><b class="js-ver">Latest version</b><span class="js-size"></span> · Android · Free</p>
+  <div class="intro-inner">
+    <div class="intro-brand">
+      <h1 class="intro-h1"><img class="intro-logo" src="assets/logo_title.png" alt="Stickshot"></h1>
+      <p class="intro-line">Ragdoll stick-figure brawler for Android. Up to 16 players on the same Wi-Fi.</p>
+    </div>
+    <div class="intro-cta">
+      <a class="btn btn-red btn-big js-download" href="https://github.com/JudeCJz/stickshot-releases/releases/latest">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>DOWNLOAD APK</span>
+      </a>
+      <p class="intro-meta"><b class="js-ver">Latest version</b><span class="js-size"></span> · Android · Free</p>
+    </div>
+  </div>
 </section>
 
 <section class="armory-box">
@@ -41,7 +47,7 @@
     <h2>THE ARMORY</h2>
   </div>
   <div class="box" id="box">
-    <canvas id="pile" role="img" aria-label="A pile of Floppy Fighters weapons and mystery items"></canvas>
+    <canvas id="pile" role="img" aria-label="A pile of Stickshot weapons and mystery items"></canvas>
     <p class="box-hint" id="box-hint">Tap an item</p>
   </div>
   <div class="box-tools">
@@ -49,6 +55,15 @@
   </div>
   <!-- keyboard / screen reader way in -->
   <ul class="sr-only" id="weapon-list"></ul>
+</section>
+
+<!-- WHAT'S NEW: highlights from the latest releases (filled in by pile.js from GitHub) -->
+<section class="sect news-sect" id="news" hidden>
+  <div class="sect-head">
+    <h2>WHAT'S NEW</h2>
+    <p class="js-news-ver"></p>
+  </div>
+  <ul class="news-list" id="news-list"></ul>
 </section>
 
 <!-- MYSTERY BLOCK: tap to roll what's inside -->
@@ -69,7 +84,7 @@
           <img id="mb-reveal-img" src="" alt="" draggable="false">
         </div>
         <div class="mb-reveal-right">
-          <span class="mb-reveal-badge">LUCKY DROP</span>
+          <span class="mb-reveal-badge">MYSTERY BLOCK</span>
           <h3 class="mb-reveal-name" id="mb-reveal-name"></h3>
           <p class="mb-reveal-desc" id="mb-reveal-desc"></p>
         </div>
@@ -200,12 +215,12 @@
 <footer class="foot">
   <div class="foot-inner">
     <div class="foot-copy">
-      <div class="foot-title"><b>Floppy Fighters</b> · Free Android ragdoll brawler by JudeCJz</div>
+      <div class="foot-title"><b>Stickshot</b> · Free Android ragdoll brawler by JudeCJz</div>
       <div class="foot-note">Heavily inspired by <em>Stick Fight: The Game</em>. Created because the official Android mobile version had its multiplayer servers discontinued and no longer works.</div>
     </div>
     <nav class="foot-links">
       <a href="https://github.com/JudeCJz" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://github.com/JudeCJz/floppy-fighters-releases/releases">Releases</a>
+      <a href="https://github.com/JudeCJz/stickshot-releases/releases">Releases</a>
     </nav>
   </div>
 </footer>
@@ -213,8 +228,8 @@
 <a class="to-top" href="#top" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-<script src="weapons.js?v=15"></script>
-<script src="pile.js?v=15"></script>
-<script src="extras.js?v=20"></script>
+<script src="weapons.js?v=16"></script>
+<script src="pile.js?v=16"></script>
+<script src="extras.js?v=21"></script>
 </body>
 </html>

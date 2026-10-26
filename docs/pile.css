@@ -38,13 +38,78 @@ body.pile-page,
 
 .intro {
   text-align: center;
-  padding: 48px var(--gutter) 36px;
+  padding: 40px var(--gutter) 28px;
   background: transparent;
 }
+.intro-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.intro-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 .intro-logo { width: min(80%, 460px); margin: 0 auto 10px; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .6)); }
+.intro-h1 { margin: 0; line-height: 0; }
+.intro-h1 .intro-logo { display: block; width: min(86%, 520px); height: auto; }
 .intro-line { margin: 0 auto 26px; max-width: 520px; color: rgba(255, 255, 255, .78); font-weight: 600; font-size: clamp(15px, 1.6vw, 18px); }
+.intro-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 .intro-meta { margin: 18px 0 0; font-size: 14px; font-weight: 700; color: var(--muted); }
 .intro-meta b { color: var(--red-hi); }
+
+@media (min-width: 860px) {
+  .intro {
+    padding: 48px var(--gutter) 36px;
+    text-align: left;
+  }
+  .intro-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(24px, 3.2vw, 44px);
+  }
+  .intro-brand {
+    align-items: flex-start;
+    text-align: left;
+    flex: 0 1 460px;
+    min-width: 0;
+  }
+  .intro-h1 {
+    width: 100%;
+  }
+  .intro-logo,
+  .intro-h1 .intro-logo {
+    margin: 0 0 14px 0;
+    width: min(100%, 460px);
+    max-width: 460px;
+  }
+  .intro-line {
+    margin: 0;
+    text-align: left;
+    max-width: 440px;
+  }
+  .intro-cta {
+    flex: 0 0 auto;
+    align-items: center;
+    text-align: center;
+  }
+  .intro-cta .btn-big {
+    white-space: nowrap;
+  }
+  .intro-meta {
+    margin-top: 14px;
+  }
+}
 
 .armory-box { max-width: 1160px; margin: 0 auto; padding: 8px var(--gutter) 64px; }
 .sect { max-width: 1160px; margin: 0 auto; padding: 8px var(--gutter) 72px; }
@@ -53,6 +118,12 @@ body.pile-page,
 .box-head h2::before, .sect-head h2::before { content: ""; display: inline-block; width: 40px; height: 5px; border-radius: 3px; background: var(--red); vertical-align: middle; margin-right: 12px; }
 .box-head p, .sect-head p { margin: 0; color: var(--muted); font-weight: 700; }
 .sect-head { margin-bottom: 20px; }
+
+/* ---------- what's new (from the GitHub releases) ---------- */
+.news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 860px; }
+.news-list li { position: relative; padding-left: 22px; color: rgba(255, 255, 255, .86); font-weight: 600; font-size: clamp(14px, 1.5vw, 16px); line-height: 1.45; }
+.news-list li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.news-list li b { color: #fff; }
 
 /* ---------- mystery block ---------- */
 .mystery-wrap {
@@ -354,16 +425,12 @@ body.pile-page,
 .ev-pic { position: relative; height: 130px; display: flex; align-items: flex-end; justify-content: center; gap: 6px; padding-bottom: 14px; overflow: hidden; }
 .ev-pic img { height: 58px; width: auto; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .6)); }
 /* Crate Rain Card & Animation */
-.event.event-crates,
-.event:has(.ev-crates) {
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  animation: ev-card-shake 5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
-}
-
 .ev-crates {
   background: #101014 url(assets/bg_ruins.jpg) center / cover;
   position: relative;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: ev-card-shake 5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
 }
 
 /* Fiery blast flash illuminating ruins */
@@ -394,6 +461,7 @@ body.pile-page,
 
 .ev-crates .ev-crate-tnt {
   height: 52px;
+  will-change: transform, opacity;
   animation: ev-tnt-detonate 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
 }
 
@@ -417,7 +485,10 @@ body.pile-page,
   opacity: 0;
   filter: none !important;
   will-change: transform, opacity;
-  animation: ev-boom 5s cubic-bezier(0.15, 0.85, 0.35, 1.2) infinite;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  animation: ev-boom 5s linear infinite;
 }
 
 /* 1. Wood crate falls first, sits in lineup, then obliterated right after TNT explosion */
@@ -481,75 +552,59 @@ body.pile-page,
   20%, 51% {
     /* Lined up calmly alongside wood and metal */
     transform: translate3d(0, 0, 0) rotate(0deg);
-    filter: none;
     opacity: 1;
   }
-  /* Starts shaking and flashing warning - pure fast GPU brightness */
+  /* Warning rattle before explosion - 100% GPU composited transform */
   52% {
-    transform: translate3d(-2px, -1px, 0) scale(1.05) rotate(-3deg);
-    filter: brightness(1.8) saturate(1.8);
+    transform: translate3d(-3px, -1px, 0) scale(1.06) rotate(-4deg);
     opacity: 1;
   }
   54% {
-    transform: translate3d(2px, 1px, 0) scale(1.10) rotate(3deg);
-    filter: brightness(2.6) saturate(2.2);
+    transform: translate3d(3px, 1px, 0) scale(1.12) rotate(4deg);
     opacity: 1;
   }
   56% {
-    transform: translate3d(-3px, -1px, 0) scale(1.15) rotate(-4deg);
-    filter: brightness(3.8);
+    transform: translate3d(-4px, -1px, 0) scale(1.18) rotate(-5deg);
     opacity: 1;
   }
   57.5% {
-    transform: translate3d(2px, 0, 0) scale(1.22) rotate(3deg);
-    filter: brightness(5.5);
+    transform: translate3d(3px, 0, 0) scale(1.26) rotate(4deg);
     opacity: 1;
   }
   /* Detonation moment: disappears into explosion */
   58% {
-    transform: translate3d(0, 0, 0) scale(1.35);
-    filter: brightness(6);
+    transform: translate3d(0, 0, 0) scale(1.36);
     opacity: 0;
   }
   58.1%, 90% {
     transform: translate3d(0, 0, 0) scale(0);
-    filter: none;
     opacity: 0;
   }
   96%, 100% {
     transform: translate3d(0, -160px, 0) rotate(-8deg);
-    filter: none;
     opacity: 0;
   }
 }
 
 /* 4. Authentic in-game explosion pop and fiery scale - 100% GPU composited */
 @keyframes ev-boom {
-  0%, 57% {
+  0%, 57.5% {
     opacity: 0;
     transform: translate3d(-50%, -50%, 0) scale(0.1) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.12, 0.9, 0.24, 1);
   }
-  58% {
+  59.5% {
+    /* Instant explosive shockwave pop */
     opacity: 1;
-    transform: translate3d(-50%, -50%, 0) scale(0.38) rotate(-3deg);
+    transform: translate3d(-50%, -50%, 0) scale(1.38) rotate(4deg);
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
   }
-  61% {
-    opacity: 1;
-    transform: translate3d(-50%, -50%, 0) scale(1.35) rotate(6deg);
-  }
-  66% {
-    opacity: 0.95;
-    transform: translate3d(-50%, -50%, 0) scale(1.52) rotate(12deg);
-  }
-  72% {
-    opacity: 0.65;
-    transform: translate3d(-50%, -50%, 0) scale(1.6) rotate(16deg);
-  }
-  78% {
+  71% {
+    /* Continuous, silky-smooth dissipation without any stop-and-go judder */
     opacity: 0;
-    transform: translate3d(-50%, -50%, 0) scale(1.68) rotate(20deg);
+    transform: translate3d(-50%, -50%, 0) scale(1.72) rotate(16deg);
   }
-  80%, 100% {
+  72%, 100% {
     opacity: 0;
     transform: translate3d(-50%, -50%, 0) scale(0.1) rotate(0deg);
   }
@@ -566,10 +621,10 @@ body.pile-page,
 
 @keyframes ev-blast-flash {
   0%, 57.5% { opacity: 0; }
-  58% { opacity: 1; }
-  62% { opacity: 0.85; }
-  70% { opacity: 0.3; }
-  78%, 100% { opacity: 0; }
+  58.5% { opacity: 1; }
+  63% { opacity: 0.7; }
+  71% { opacity: 0; }
+  72%, 100% { opacity: 0; }
 }
 /* Thunderstorm event card */
 .event-storm {
