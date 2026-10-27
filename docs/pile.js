@@ -285,8 +285,8 @@
     if (w.name === "Flashbang") {
       return [
         ["Blind Duration", "UP TO 3.5 S", 1.0],
-        ["Blast Radius", "884 PX", 1.0],
-        ["Fuse Timer", "3.5 S", 0.88],
+        ["Blast Radius", "796 PX", 1.0],
+        ["Fuse Timer", "4.0 S", 1.0],
         ["Ammo", "2", 0.33]
       ];
     }

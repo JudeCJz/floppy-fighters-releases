@@ -119,6 +119,18 @@ body.pile-page,
 .box-head p, .sect-head p { margin: 0; color: var(--muted); font-weight: 700; }
 .sect-head { margin-bottom: 20px; }
 
+/* ---------- gameplay video (placeholder) ---------- */
+.video-soon {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; aspect-ratio: 16 / 9; max-height: 560px; padding: 24px; box-sizing: border-box;
+  border: 3px dashed rgba(255, 255, 255, .22); border-radius: 22px;
+  background: radial-gradient(ellipse at center, rgba(216, 38, 44, .2), rgba(17, 17, 21, .92) 70%);
+  text-align: center; color: #fff;
+}
+.video-soon svg { width: clamp(56px, 9vw, 92px); height: auto; opacity: .9; }
+.video-soon b { font-size: clamp(22px, 4vw, 40px); letter-spacing: .12em; }
+.video-soon span { color: var(--muted); font-weight: 700; }
+
 /* ---------- mystery block ---------- */
 .mystery-wrap {
   display: flex;
