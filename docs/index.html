@@ -4,64 +4,97 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stickshot</title>
-<meta name="description" content="Stickshot: a free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
-<meta name="theme-color" content="#1b1b1f">
+<meta name="description" content="Stickshot: a free ragdoll stick-figure brawler for Android and the browser. Online and Wi-Fi play for up to 16 players, voice chat, 28 weapons.">
+<meta name="theme-color" content="#0b0b0e">
 <meta property="og:title" content="Stickshot">
-<meta property="og:description" content="Free ragdoll stick-figure brawler for Android. 28 weapons, up to 16 players on your Wi-Fi.">
+<meta property="og:description" content="Free ragdoll stick-figure brawler. Online and Wi-Fi play for up to 16, voice chat, 28 weapons. Android app or play in your browser.">
 <meta property="og:image" content="assets/app_icon.png">
 <link rel="icon" href="assets/app_icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=11">
-<link rel="stylesheet" href="pile.css?v=27">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="pile.css?v=28">
+<link rel="stylesheet" href="site.css?v=1">
 </head>
-<body class="pile-page">
+<body class="pile-page site">
 
-<div class="bg-wallpaper" id="bg-wallpaper" aria-hidden="true"></div>
 <div class="flashbang-screen" id="flashbang-screen" aria-hidden="true"></div>
 
-<header class="nav">
+<header class="topbar" id="topbar">
   <a class="brand" href="#top"><img src="assets/app_icon.png" alt=""><span>STICKSHOT</span></a>
-  <a class="btn btn-red btn-sm js-download nav-dl" href="https://github.com/JudeCJz/stickshot-releases/releases/latest">Download</a>
+  <nav class="toplinks" aria-label="Sections">
+    <a href="#features">Features</a>
+    <a href="#armory">Armory</a>
+    <a href="#maps">Maps</a>
+    <a href="#controls">Controls</a>
+    <a href="#news">What's new</a>
+  </nav>
+  <a class="btn btn-red btn-sm js-download" href="https://github.com/JudeCJz/stickshot-releases/releases/latest">Download</a>
 </header>
 
-<section class="intro" id="top">
-  <div class="intro-inner">
-    <div class="intro-brand">
-      <h1 class="intro-h1"><img class="intro-logo" src="assets/logo_title.png" alt="Stickshot"></h1>
-      <p class="intro-line">Ragdoll stick-figure brawler for Android and your browser. Up to 16 players, on the same Wi-Fi or online. Online multiplayer works now.</p>
-    </div>
-    <div class="intro-cta">
+<section class="s-hero" id="top">
+  <div class="s-hero-art" aria-hidden="true"></div>
+  <div class="s-hero-inner">
+    <h1 class="s-hero-logo"><img src="assets/logo_title.png" alt="Stickshot"></h1>
+    <p class="s-hero-line">Ragdoll stick fights with your friends. Grab a weapon, knock everyone off the map, last one standing wins.</p>
+    <div class="s-hero-cta">
       <a class="btn btn-red btn-big js-download" href="https://github.com/JudeCJz/stickshot-releases/releases/latest">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>DOWNLOAD APK</span>
+        <span>Download for Android</span>
       </a>
-      <a class="btn btn-ghost btn-big" href="https://judecjz.github.io/stickshot-play/">
+      <a class="btn btn-glass btn-big" href="https://judecjz.github.io/stickshot-play/">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor"/></svg>
-        <span>PLAY IN BROWSER</span>
+        <span>Play in browser</span>
       </a>
-      <p class="intro-meta"><b class="js-ver">Latest version</b><span class="js-size"></span> · Android · Free</p>
     </div>
+    <p class="s-hero-meta"><b class="js-ver">Latest version</b><span class="js-size"></span> · Free · No account</p>
+    <ul class="s-chips" aria-label="Highlights">
+      <li>Online multiplayer</li>
+      <li>Up to 16 players</li>
+      <li>Voice chat</li>
+      <li>Cross-play: app + browser</li>
+    </ul>
   </div>
 </section>
 
-<!-- GAMEPLAY VIDEO: placeholder until the showcase is recorded -->
-<section class="sect video-sect" id="gameplay">
-  <div class="sect-head">
-    <h2>GAMEPLAY</h2>
-  </div>
-  <div class="video-soon" role="img" aria-label="Gameplay video showcase: coming soon">
-    <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="4"/><path d="M26 20v24l20-12z" fill="currentColor"/></svg>
-    <b>COMING SOON</b>
-    <span>Gameplay showcase video</span>
+<section class="sect ways" aria-label="Ways to play">
+  <article class="way">
+    <img src="assets/app_icon.png" alt="" class="way-icon">
+    <div class="way-text">
+      <h3>Android app</h3>
+      <p>Online games and games on your Wi-Fi. Updates from inside the app.</p>
+    </div>
+    <a class="btn btn-red js-download" href="https://github.com/JudeCJz/stickshot-releases/releases/latest">Get the APK</a>
+  </article>
+  <article class="way">
+    <span class="way-icon way-icon-web" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>
+    <div class="way-text">
+      <h3>Browser</h3>
+      <p>Nothing to install, on a phone or a computer. Joins the same online games as the app.</p>
+    </div>
+    <a class="btn btn-glass" href="https://judecjz.github.io/stickshot-play/">Play now</a>
+  </article>
+</section>
+
+<section class="sect" id="features">
+  <div class="head2"><span class="eyebrow">The game</span><h2>Everything in the box</h2></div>
+  <div class="s-features">
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></span><h3>Online play</h3><p>Host a game and anyone on the internet can join it from the list. Add a password to keep it to your friends.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1.2"/></svg></span><h3>Wi-Fi games</h3><p>Phones on the same Wi-Fi find each other on their own. Up to 16 players in one match.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></span><h3>Voice chat</h3><p>Hold TALK, or switch to open mic. A speaker shows next to whoever is talking. Light on data.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6l4.3 4.3M18.4 5.6l-4.3 4.3M5.6 18.4l4.3-4.3M18.4 18.4l-4.3-4.3"/></svg></span><h3>Quick chat</h3><p>A wheel of ready lines: hold, slide, let go. Write your own lines in settings.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 15h11l3-3h4v4h-3l-2 2H8l-1 3H4l1-3H3z"/><path d="M9 15l1-3h4"/></svg></span><h3>28 weapons</h3><p>Guns, blades, grenades, launchers, a flamethrower and a laser. Throw any of them when you're done.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14"/><circle cx="12" cy="17" r=".9"/></svg></span><h3>Mystery Blocks</h3><p>Hit one and find out what falls out: a power-up, a weapon or a surprise.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 20l5-9 4 6 3-4 6 7z"/><circle cx="16" cy="6" r="2"/></svg></span><h3>52 arenas</h3><p>Six worlds of hand-made maps with lifts, swings and crates, plus a new generated map every round.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5M9 13h.01M15 13h.01"/><circle cx="12" cy="4" r="1"/></svg></span><h3>CPUs and teams</h3><p>Fill the match with CPUs at four levels. Free-for-all or red against blue.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span><h3>Sandbox</h3><p>Spawn any weapon, place training dummies and switch map events on and off.</p></article>
+    <article class="s-feat"><span class="s-feat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="7" cy="16" r="4"/><circle cx="17" cy="9" r="2.5"/><circle cx="19.5" cy="15.5" r="2"/><path d="M4 4h6M7 1v6"/></svg></span><h3>Your controls</h3><p>Move, resize and set the opacity of every button. On a computer, set your own keys.</p></article>
   </div>
 </section>
 
-<section class="armory-box">
-  <div class="box-head">
-    <h2>THE ARMORY</h2>
-  </div>
+<section class="armory-box" id="armory">
+  <div class="head2"><span class="eyebrow">Weapons</span><h2>The armory</h2></div>
   <div class="box" id="box">
     <canvas id="pile" role="img" aria-label="A pile of Stickshot weapons and mystery items"></canvas>
     <p class="box-hint" id="box-hint">Tap an item</p>
@@ -74,10 +107,8 @@
 </section>
 
 <!-- MYSTERY BLOCK: tap to roll what's inside -->
-<section class="sect mystery">
-  <div class="sect-head">
-    <h2>MYSTERY BLOCK</h2>
-  </div>
+<section class="sect mystery" id="mystery-block">
+  <div class="head2"><span class="eyebrow">Tap it</span><h2>Mystery block</h2></div>
   <div class="mystery-wrap">
     <div class="mb-stage" id="mb-stage">
       <div class="mb-reel" id="mb-reel" aria-hidden="true">
@@ -102,10 +133,8 @@
 </section>
 
 <!-- MAPS: swipeable slider -->
-<section class="sect maps-sect">
-  <div class="sect-head">
-    <h2>THE MAPS</h2>
-  </div>
+<section class="sect maps-sect" id="maps">
+  <div class="head2"><span class="eyebrow">Six worlds</span><h2>The maps</h2></div>
   <div class="slider">
     <button class="slide-arrow prev" aria-label="Previous map">&#8249;</button>
     <div class="slides" id="slides">
@@ -122,10 +151,8 @@
 </section>
 
 <!-- MAP EVENTS -->
-<section class="sect events-sect">
-  <div class="sect-head">
-    <h2>MAP EVENTS</h2>
-  </div>
+<section class="sect events-sect" id="events">
+  <div class="head2"><span class="eyebrow">Mid-match chaos</span><h2>Map events</h2></div>
   <div class="events">
     <article class="event event-crates" id="event-crates">
       <div class="ev-pic ev-crates">
@@ -219,15 +246,95 @@
   </div>
 </div>
 
+
+<section class="sect" id="controls">
+  <div class="head2"><span class="eyebrow">How to play</span><h2>Controls</h2></div>
+  <div class="ctl-grid">
+    <article class="ctl">
+      <h3>Phone</h3>
+      <ul class="keys">
+        <li><span class="k">Stick</span>Move and aim</li>
+        <li><span class="k">Jump</span>Jump</li>
+        <li><span class="k">Hit</span>Punch, shoot; hold to charge a grenade</li>
+        <li><span class="k">Throw</span>Hold and let go to throw what you hold</li>
+        <li><span class="k">X</span>Cancel a throw</li>
+        <li><span class="k">Talk</span>Hold to talk</li>
+        <li><span class="k">Quick chat</span>Hold, slide to a line, let go</li>
+      </ul>
+      <p class="ctl-note">Every button can be moved, resized and made see-through: Settings › Controls.</p>
+    </article>
+    <article class="ctl">
+      <h3>Computer</h3>
+      <ul class="keys">
+        <li><span class="k">A</span><span class="k">D</span>Move</li>
+        <li><span class="k">W</span><span class="k">Space</span>Jump</li>
+        <li><span class="k">Mouse</span>Aim</li>
+        <li><span class="k">Left click</span>Hit</li>
+        <li><span class="k">Right click</span><span class="k">Q</span>Throw</li>
+        <li><span class="k">V</span>Push to talk</li>
+        <li><span class="k">C</span>Quick chat</li>
+        <li><span class="k">Enter</span>Chat</li>
+        <li><span class="k">Tab</span>Scores</li>
+      </ul>
+      <p class="ctl-note">Any key can be changed: Settings › Controls › Keyboard.</p>
+    </article>
+  </div>
+</section>
+
+<section class="sect" id="news">
+  <div class="head2"><span class="eyebrow">Updates</span><h2>What's new <span class="js-ver news-ver"></span></h2></div>
+  <div class="news">
+    <ul class="news-list" id="news-list">
+      <li>Online games, voice chat and the quick chat wheel.</li>
+    </ul>
+    <a class="news-all" href="https://github.com/JudeCJz/stickshot-releases/releases" target="_blank" rel="noopener">All releases ›</a>
+  </div>
+</section>
+
+<section class="sect" id="install">
+  <div class="head2"><span class="eyebrow">Help</span><h2>Installing</h2></div>
+  <div class="faq">
+    <details open>
+      <summary>How do I install the APK?</summary>
+      <p>Download it on your phone and open it. If Android asks, allow your browser to install apps, then tap Install.</p>
+    </details>
+    <details>
+      <summary>Play Protect warns about the app</summary>
+      <p>Stickshot isn't on the Play Store, so Play Protect doesn't know it yet. Tap More details, then Install anyway.</p>
+    </details>
+    <details>
+      <summary>How do I update?</summary>
+      <p>The app shows an UPDATE button on the main menu when a new version is out. The browser version updates itself.</p>
+    </details>
+    <details>
+      <summary>My friend can't see my online game</summary>
+      <p>Both of you need the same version. Update, then look in Available games, or tap Refresh.</p>
+    </details>
+    <details>
+      <summary>Voice chat doesn't hear me</summary>
+      <p>Allow the microphone when the game asks. Settings › Voice &amp; chat › Mic test shows a bar that moves when you speak.</p>
+    </details>
+  </div>
+</section>
+
+<section class="sect cta-end">
+  <h2>Ready to fight?</h2>
+  <div class="s-hero-cta">
+    <a class="btn btn-red btn-big js-download" href="https://github.com/JudeCJz/stickshot-releases/releases/latest"><span>Download for Android</span></a>
+    <a class="btn btn-glass btn-big" href="https://judecjz.github.io/stickshot-play/"><span>Play in browser</span></a>
+  </div>
+</section>
+
 <footer class="foot">
   <div class="foot-inner">
     <div class="foot-copy">
-      <div class="foot-title"><b>Stickshot</b> · Free Android ragdoll brawler by JudeCJz</div>
-      <div class="foot-note">Heavily inspired by <em>Stick Fight: The Game</em>. Created because the official Android mobile version had its multiplayer servers discontinued and no longer works. Stickshot has working online multiplayer.</div>
+      <div class="foot-title"><b>Stickshot</b> · a free game by JudeCJz</div>
+      <div class="foot-note">Fan-made and inspired by <a href="https://store.steampowered.com/app/674940/Stick_Fight_The_Game/" target="_blank" rel="noopener"><em>Stick Fight: The Game</em></a> by Landfall. Not affiliated with Landfall. Made because the Android version of Stick Fight was discontinued.</div>
     </div>
     <nav class="foot-links">
       <a href="https://github.com/JudeCJz" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/JudeCJz/stickshot-releases/releases">Releases</a>
+      <a href="https://judecjz.github.io/stickshot-play/">Play in browser</a>
     </nav>
   </div>
 </footer>
@@ -238,5 +345,6 @@
 <script src="weapons.js?v=16"></script>
 <script src="pile.js?v=16"></script>
 <script src="extras.js?v=21"></script>
+<script src="site.js?v=1"></script>
 </body>
 </html>
